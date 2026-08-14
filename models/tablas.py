@@ -48,7 +48,7 @@ class Asignaturas(miClaseBase):
 
     id = Column(Integer, primary_key=True)
     nombre = Column(String)
-    creditos = Column(String)
+    creditos = Column(Integer)
     seccion = Column(String)
     dia = Column(String)
     horario = Column(String)
