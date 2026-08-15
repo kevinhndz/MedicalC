@@ -61,8 +61,41 @@ def crear_estudiante(
         )
 
         
+@router.delete("/{id}")
+def borrar_por_id(id: int, base_datos: Session = Depends(abrir_conexion_a_bd)):
     
-       
-   
+    a_borrar = base_datos.query(Estudiantes).filter(Estudiantes.id == id).first()
+    
+    if a_borrar is None:
+        raise HTTPException(
+            status_code = status.HTTP_404_NOT_FOUND,
+            detail = "Estuidante no existe!"
+        )
+    else:
+        
+        base_datos.delete(a_borrar)
+        base_datos.commit()
+        return {"Mensaje": f"Estudiante: {a_borrar.nombre} ha sido eliminado del sistema"}
+    
+@router.put("/{id}")
+def editar_estudiante(id: int, json: Revisar_JSON_de_Estudiantes, base_datos: Session = Depends(abrir_conexion_a_bd)):
+    
+    find_put = base_datos.query(Estudiantes).filter(Estudiantes.id == id).first()
+    
+    if find_put is not None:
+        
+        find_put.nombre = json.nombre
+        find_put.correo = json.correo
+        find_put.telefono = json.telefono
+        
+        base_datos.add(find_put)
+        base_datos.commit()
+        base_datos.refresh(find_put) 
+        
+        return find_put  
 
-    
+    else:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Alumno no encontrado"
+        )
