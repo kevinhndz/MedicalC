@@ -1,6 +1,6 @@
 from passlib.context import CryptContext
 
-contexto = CryptContext(schemes=["bcrypt"], deprecated="auto")
+contexto = CryptContext(schemes=["argon2"], deprecated="auto")
 
 def hashear_contrasena(contrasena: str) -> str:
     

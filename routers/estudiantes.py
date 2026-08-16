@@ -20,18 +20,9 @@ def ver_estudiantes(
 ):
     
     check = base_datos.query(Estudiantes).all()
-    many = 0
+    many = len(check)
     
-    if not check:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="No hay estudiantes registrados aun!"
-        )
-    else:
-        for student in check:
-            many += 1
-        
-        return {"Mensaje": f"Se encontraron {many} estudiantes", "Estudiantes": check}
+    return {"Mensaje": f"Se encontraron {many} estudiantes", "Estudiantes": check}
 
 
 @router.post("/", status_code=status.HTTP_201_CREATED)

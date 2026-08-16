@@ -3,24 +3,27 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Login</title>
 </head>
 <body>
     
 
-    <h1>Inicia Sesion! </h1>
+    <h1>Inicia Sesion!</h1>
 
-     <form id = "login" method="post">
+    <form id="login" method="post">
       
-        <label >Tu Usuario:</label>
-        <input type="text" id = "user" placeholder="adminuser" required>
+        <label>Tu Usuario:</label>
+        <input type="text" id="user" placeholder="adminuser" required>
         <br>
-        <label >Tu Contrasena:</label>
+        <label>Tu Contrasena:</label>
         <input type="password" required id="password">
 
-        <button type="submit">Logn In</button>
+        <button type="submit">Login In</button>
 
+    </form>
 
-     </form>
+    <p>No tienes cuenta? <a href="/signup">Crea una!</a></p>
+
+    <script src="/static/login.js"></script>
 </body>
 </html>

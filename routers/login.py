@@ -11,8 +11,8 @@ from utils.hash import verificar_contrasena
 
 router = APIRouter(
     
-    prefix = "/login",
-    tags = ["Login"]
+    prefix="/login",
+    tags=["Login"]
     
 )
 
@@ -27,14 +27,14 @@ def login(
     
     if check is None:
         raise HTTPException(
-            status_code = status.HTTP_404_NOT_FOUND,
-            detail = f"Usuario: {json.user} no ha sido encontrado"
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Usuario: {json.user} no ha sido encontrado"
         )
     
     if not verificar_contrasena(json.password, check.password):
         raise HTTPException(
-            status_code = status.HTTP_401_UNAUTHORIZED,
-            detail = "Contrasnea Incorrecta"
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Contrasena Incorrecta"
         )
     
     boleto = crear_boleto(check.user, check.id, check.rol)
@@ -43,10 +43,6 @@ def login(
         
         "user": check.user,
         "boleto": boleto,
-        "rol" : check.rol
+        "rol": check.rol
      
     }
-    
-    
-    
- 

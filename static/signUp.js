@@ -19,14 +19,15 @@ document.getElementById("registrar").addEventListener("submit", async function(e
     });
 
   
-const datos = await respuesta.json();
+    const datos = await respuesta.json();
 
-if (respuesta.ok) {
-    window.location = "/general";
-} else {
-    
-    alert("Error de validacion:\n" + JSON.stringify(datos.detail, null, 2));
-    console.log(datos.detail);
-}
+    if (respuesta.ok) {
+        alert("Empleado registrado correctamente! Ahora inicia sesion");
+        window.location = "/";
+    } else {
+        
+        alert("Error de validacion:\n" + JSON.stringify(datos.detail, null, 2));
+        console.log(datos.detail);
+    }
 
 });
