@@ -4,6 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sistema de Gestion</title>
+    <link rel="stylesheet" href="/static/estilos.css">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
 </head>
 <body>
     
@@ -13,6 +17,8 @@
         <button onclick="cerrarSesion()">Cerrar Sesion</button>
     </div>
 
+    <div id="mensaje"></div>
+
     <div id="modulos">
         
         <div id="modulo-estudiantes" style="display:none;">
@@ -21,8 +27,11 @@
             <div id="formulario-estudiante" style="display:none;">
                 <h3>Agregar Estudiante</h3>
                 <form id="form-crear-estudiante">
+                    <label>Nombre:</label>
                     <input type="text" id="nombre" placeholder="Nombre" required>
+                    <label>Telefono:</label>
                     <input type="text" id="telefono" placeholder="Telefono" required>
+                    <label>Correo:</label>
                     <input type="email" id="correo" placeholder="Correo" required>
                     <button type="submit">Agregar Estudiante</button>
                 </form>
@@ -50,10 +59,15 @@
             <div id="formulario-asignatura">
                 <h3>Agregar Asignatura</h3>
                 <form id="form-crear-asignatura">
+                    <label>Nombre:</label>
                     <input type="text" id="nom-asignatura" placeholder="Nombre" required>
+                    <label>Creditos:</label>
                     <input type="number" id="creditos" placeholder="Creditos" required>
+                    <label>Seccion:</label>
                     <input type="text" id="seccion" placeholder="Seccion" required>
+                    <label>Dia:</label>
                     <input type="text" id="dia" placeholder="Dia" required>
+                    <label>Horario:</label>
                     <input type="text" id="horario" placeholder="Horario" required>
                     <button type="submit">Agregar Asignatura</button>
                 </form>

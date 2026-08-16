@@ -1,0 +1,180 @@
+
+body {
+    font-family: Arial, sans-serif;
+    background-color: rgb(52, 43, 43);
+    color: white;
+    padding: 20px;
+}
+
+h1 {
+    color: rgb(186, 97, 97);
+    text-align: center;
+}
+
+h2 {
+    color: rgb(209, 116, 116);
+}
+
+h3 {
+    color: white;
+}
+
+
+form {
+    background-color: #1a1a1a;
+    border: 2px solid red;
+    padding: 20px;
+    max-width: 400px;
+    margin: 20px auto;
+}
+
+label {
+    display: block;
+    margin-top: 10px;
+    color: white;
+}
+
+input, select {
+    width: 100%;
+    padding: 8px;
+    margin-top: 5px;
+    border: 1px solid red;
+    background-color: white;
+    color: black;
+    font-size: 14px;
+}
+
+button {
+    background-color: red;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    margin-top: 15px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: bold;
+}
+
+button:hover {
+    background-color: darkred;
+}
+
+
+a {
+    color: red;
+}
+
+p {
+    text-align: center;
+    color: white;
+}
+
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: #1a1a1a;
+    margin-top: 15px;
+    margin-bottom: 30px;
+    border: 2px solid red;
+}
+
+th, td {
+    padding: 10px;
+    text-align: left;
+    border: 1px solid red;
+    color: white;
+}
+
+th {
+    background-color: red;
+    color: black;
+}
+
+
+td button {
+    margin: 2px;
+    padding: 6px 12px;
+    font-size: 13px;
+}
+
+.btn-editar {
+    background-color: white;
+    color: black;
+}
+
+.btn-borrar {
+    background-color: red;
+    color: white;
+}
+
+.btn-guardar {
+    background-color: green;
+    color: white;
+}
+
+.btn-cancelar {
+    background-color: gray;
+    color: white;
+}
+
+#header {
+    background-color: #1a1a1a;
+    border: 2px solid red;
+    padding: 15px 20px;
+    margin-bottom: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+#header h1 {
+    margin: 0;
+    font-size: 20px;
+}
+
+#header button {
+    background-color: red;
+}
+
+
+#modulos {
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+#modulo-estudiantes, #modulo-asignaturas {
+    background-color: #1a1a1a;
+    border: 2px solid red;
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+
+#mensaje {
+    max-width: 900px;
+    margin: 0 auto 15px auto;
+    padding: 12px;
+    text-align: center;
+    font-weight: bold;
+    display: none;
+}
+
+#mensaje.exito {
+    background-color: green;
+    color: white;
+    display: block;
+}
+
+#mensaje.error {
+    background-color: red;
+    color: white;
+    display: block;
+}
+
+
+td input {
+    width: 100px;
+    color: black;
+}
