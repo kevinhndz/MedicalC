@@ -8,14 +8,8 @@ from utils.hash import hashear_contrasena
 
 router = APIRouter(
      
-    prefix = "/registrar",
-    tags = ["Registrar"]
-)
-
-router = APIRouter(
-     
-    prefix = "/registrar",
-    tags = ["Registrar"]
+    prefix="/registrar",
+    tags=["Registrar"]
 )
 
 
@@ -32,16 +26,16 @@ def registrar_nuevo_empleado(
     
     if check is not None:
         raise HTTPException(
-            status_code = status.HTTP_409_CONFLICT,
-            detail = f"Error! {json.nombre} ya ha sido registrado en el sistema. Verifica tus datos de nuevo"
+            status_code=status.HTTP_409_CONFLICT,
+            detail=f"Error! {json.nombre} ya ha sido registrado en el sistema. Verifica tus datos de nuevo"
         )
     else:
         
         nuevo_empleado = Empleados(
-            nombre = json.nombre,
-            telefono = json.telefono,
-            correo = json.correo,
-            cargo = json.cargo
+            nombre=json.nombre,
+            telefono=json.telefono,
+            correo=json.correo,
+            cargo=json.cargo
         )
         
        
@@ -52,10 +46,10 @@ def registrar_nuevo_empleado(
         base_datos.refresh(nuevo_empleado)
         
         nuevo_usuario = Usuarios(
-            user = json.user,
-            password = contrasena_hasheada,
-            rol = json.cargo, 
-            id_empleado = nuevo_empleado.id
+            user=json.user,
+            password=contrasena_hasheada,
+            rol=json.cargo, 
+            id_empleado=nuevo_empleado.id
         )
         
         base_datos.add(nuevo_usuario)

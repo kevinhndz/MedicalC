@@ -3,40 +3,46 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Registro</title>
    
 </head>
 <body>
 
-    <h1> Registrate Ya!</h1>
+    <h1>Registrate Ya!</h1>
     <br> <br>
 
     <form id="registrar" method="post">
 
-     <label >Escribe Tu Nombre:</label>
+     <label>Escribe Tu Nombre:</label>
      <input type="text" id="nombre" placeholder="Adrian Gomez" required> <br>
 
-     <label >Escribe Tu Telefono:</label>
+     <label>Escribe Tu Telefono:</label>
      <input type="text" id="telefono" placeholder="+504 8950 0088" required> <br>
 
 
-     <label >Escribe Tu Correo:</label>
+     <label>Escribe Tu Correo:</label>
      <input type="text" id="correo" placeholder="kevstpg@gmail.com" required> <br>
 
-     <label >Tu Cargo:</label>
-     <input type="text" id="cargo" placeholder=" Profesor" required> <br>
+     <label>Tu Cargo:</label>
+     <select id="cargo" required>
+        <option value="">-- Selecciona un cargo --</option>
+        <option value="Profesor">Profesor</option>
+        <option value="Administrador">Administrador</option>
+     </select> <br>
 
-     <label >Tu Nuevo Usuario:</label>
+     <label>Tu Nuevo Usuario:</label>
      <input type="text" id="user" required> <br>
 
-     <label >Tu Contrasena:</label>
+     <label>Tu Contrasena:</label>
      <input type="password" id="password" required> <br>
 
 
      <button type="submit">Enviar Cambios</button>
 
     </form>
+
+    <p>Ya tienes cuenta? <a href="/">Loguate aqui!</a></p>
     
+    <script src="/static/signUp.js"></script>
 </body>
-<script src="/static/signUp.js"></script>
 </html>

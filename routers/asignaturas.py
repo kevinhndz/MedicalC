@@ -20,18 +20,9 @@ def ver_asignaturas(
 ):
     
     check = base_datos.query(Asignaturas).all()
-    many = 0
+    many = len(check)
     
-    if not check:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="No hay asignaturas registradas aun!"
-        )
-    else:
-        for asignatura in check:
-            many += 1
-        
-        return {"Mensaje": f"Se encontraron {many} asignaturas", "Asignaturas": check}
+    return {"Mensaje": f"Se encontraron {many} asignaturas", "Asignaturas": check}
 
 
 @router.post("/", status_code=status.HTTP_201_CREATED)
