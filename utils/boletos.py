@@ -2,7 +2,7 @@ import os
 from dotenv import load_dotenv
 from datetime import datetime, timedelta, timezone
 
-from jose import jwt,JWTError
+from jose import jwt ,JWTError
 
 load_dotenv()
 
