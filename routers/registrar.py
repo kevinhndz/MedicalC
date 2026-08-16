@@ -4,20 +4,13 @@ from sqlalchemy.orm import Session
 from models.almacen import abrir_conexion_a_bd
 from models.filtro_seguridad import Revisar_JSON_de_Nuevo_Empleado
 from models.tablas import Empleados, Usuarios
+from utils.hash import hashear_contrasena
 
 router = APIRouter(
      
     prefix = "/registrar",
     tags = ["Registrar"]
 )
-
-
-from fastapi import FastAPI, Depends, HTTPException, status, APIRouter
-from sqlalchemy.orm import Session
-
-from models.almacen import abrir_conexion_a_bd
-from models.filtro_seguridad import Revisar_JSON_de_Nuevo_Empleado
-from models.tablas import Empleados, Usuarios
 
 router = APIRouter(
      
@@ -33,6 +26,7 @@ def registrar_nuevo_empleado(
     base_datos: Session = Depends(abrir_conexion_a_bd)
 ):
     
+    contrasena_hasheada = hashear_contrasena(json.password)
     check = base_datos.query(Empleados).filter(Empleados.correo == json.correo).first()
     
     
@@ -59,7 +53,7 @@ def registrar_nuevo_empleado(
         
         nuevo_usuario = Usuarios(
             user = json.user,
-            password = json.password,
+            password = contrasena_hasheada,
             rol = json.cargo, 
             id_empleado = nuevo_empleado.id
         )
