@@ -25,7 +25,7 @@ if (respuesta.ok) {
     window.location = "/general";
 } else {
     
-    alert("Error de validación:\n" + JSON.stringify(datos.detail, null, 2));
+    alert("Error de validacion:\n" + JSON.stringify(datos.detail, null, 2));
     console.log(datos.detail);
 }
 

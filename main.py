@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, FastAPI, Header, HTTPException, status, 
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
 
-from routers import estudiantes, registrar  # 👈 1. Importamos el router de registrar
+from routers import estudiantes, registrar  
 from models.almacen import miClaseBase, motor
 
 app = FastAPI()
@@ -31,6 +31,6 @@ def general(request: Request):
     return templates.TemplateResponse(request, 'general.html')
 
 
-# 👈 5. Incluir ambos routers
+
 app.include_router(estudiantes.router)
-app.include_router(registrar.router)  # 👈 Añadido el router de registro
+app.include_router(registrar.router) 
