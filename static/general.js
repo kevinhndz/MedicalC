@@ -19,6 +19,10 @@ document.getElementById("rolUsuario").textContent = rol;
 
 let listaEstudiantes = [];
 let listaAsignaturas = [];
+let paginaActualEstudiantes = 1;
+let paginaActualAsignaturas = 1;
+let paginaActualMatriculas = 1;
+const REGISTROS_POR_PAGINA = 10;
 
 function mostrarMensaje(texto, tipo) {
     const caja = document.getElementById("mensaje");
@@ -40,7 +44,7 @@ function cerrarSesion() {
 
 async function cargarEstudiantes() {
     try {
-        const respuesta = await fetch("/estudiantes/", {
+        const respuesta = await fetch(`/estudiantes/?pagina=${paginaActualEstudiantes}&limite=${REGISTROS_POR_PAGINA}`, {
             method: "GET",
             headers: { "token": token }
         });
@@ -51,9 +55,18 @@ async function cargarEstudiantes() {
         }
 
         const datos = await respuesta.json();
-        listaEstudiantes = datos.Estudiantes;
+        
+       
+        if (paginaActualEstudiantes === 1) {
+            listaEstudiantes = datos.Estudiantes;
+        } else {
+            listaEstudiantes = listaEstudiantes.concat(datos.Estudiantes);
+        }
 
         dibujarTablaEstudiantes();
+        
+      
+        mostrarBotonVerMasEstudiantes(datos.hay_mas);
 
     } catch (error) {
         mostrarMensaje("Error de conexion al cargar estudiantes", "error");
@@ -88,6 +101,30 @@ function dibujarTablaEstudiantes() {
             celda.style.display = "table-cell";
         });
     }
+}
+
+
+function mostrarBotonVerMasEstudiantes(hayMas) {
+    let boton = document.getElementById("btn-ver-mas-estudiantes");
+    
+    if (!boton) {
+        boton = document.createElement("button");
+        boton.id = "btn-ver-mas-estudiantes";
+        boton.className = "btn-ver-mas";
+        boton.textContent = "Ver más estudiantes";
+        boton.style.marginTop = "10px";
+        boton.style.padding = "8px 16px";
+        boton.style.cursor = "pointer";
+        boton.onclick = () => {
+            paginaActualEstudiantes++;
+            cargarEstudiantes();
+        };
+        
+        const tableContainer = document.getElementById("tbody-estudiantes").parentElement.parentElement;
+        tableContainer.appendChild(boton);
+    }
+    
+    boton.style.display = hayMas ? "block" : "none";
 }
 
 function activarEdicionEstudiante(id) {
@@ -128,6 +165,8 @@ async function guardarEstudiante(id) {
 
         if (respuesta.ok) {
             mostrarMensaje("Estudiante actualizado correctamente", "exito");
+           
+            paginaActualEstudiantes = 1;
             cargarEstudiantes();
         } else {
             const datos = await respuesta.json();
@@ -148,6 +187,8 @@ async function borrarEstudiante(id) {
 
         if (respuesta.ok) {
             mostrarMensaje("Estudiante borrado correctamente", "exito");
+            
+            paginaActualEstudiantes = 1;
             cargarEstudiantes();
         } else {
             mostrarMensaje("Error al borrar estudiante", "error");
@@ -180,6 +221,8 @@ document.getElementById("form-crear-estudiante").addEventListener("submit", asyn
         if (respuesta.ok) {
             mostrarMensaje("Estudiante agregado correctamente", "exito");
             this.reset();
+            
+            paginaActualEstudiantes = 1;
             cargarEstudiantes();
         } else {
             mostrarMensaje("Error: " + datos.detail, "error");
@@ -194,7 +237,7 @@ document.getElementById("form-crear-estudiante").addEventListener("submit", asyn
 
 async function cargarAsignaturas() {
     try {
-        const respuesta = await fetch("/asignaturas/", {
+        const respuesta = await fetch(`/asignaturas/?pagina=${paginaActualAsignaturas}&limite=${REGISTROS_POR_PAGINA}`, {
             method: "GET",
             headers: { "token": token }
         });
@@ -205,9 +248,17 @@ async function cargarAsignaturas() {
         }
 
         const datos = await respuesta.json();
-        listaAsignaturas = datos.Asignaturas;
+        
+        
+        if (paginaActualAsignaturas === 1) {
+            listaAsignaturas = datos.Asignaturas;
+        } else {
+            listaAsignaturas = listaAsignaturas.concat(datos.Asignaturas);
+        }
 
         dibujarTablaAsignaturas();
+     
+        mostrarBotonVerMasAsignaturas(datos.hay_mas);
 
     } catch (error) {
         mostrarMensaje("Error de conexion al cargar asignaturas", "error");
@@ -237,6 +288,29 @@ function dibujarTablaAsignaturas() {
         `;
         tbody.appendChild(fila);
     });
+}
+
+function mostrarBotonVerMasAsignaturas(hayMas) {
+    let boton = document.getElementById("btn-ver-mas-asignaturas");
+    
+    if (!boton) {
+        boton = document.createElement("button");
+        boton.id = "btn-ver-mas-asignaturas";
+        boton.className = "btn-ver-mas";
+        boton.textContent = "Ver más asignaturas";
+        boton.style.marginTop = "10px";
+        boton.style.padding = "8px 16px";
+        boton.style.cursor = "pointer";
+        boton.onclick = () => {
+            paginaActualAsignaturas++;
+            cargarAsignaturas();
+        };
+        
+        const tableContainer = document.getElementById("tbody-asignaturas").parentElement.parentElement;
+        tableContainer.appendChild(boton);
+    }
+    
+    boton.style.display = hayMas ? "block" : "none";
 }
 
 function activarEdicionAsignatura(id) {
@@ -281,6 +355,8 @@ async function guardarAsignatura(id) {
 
         if (respuesta.ok) {
             mostrarMensaje("Asignatura actualizada correctamente", "exito");
+        
+            paginaActualAsignaturas = 1;
             cargarAsignaturas();
         } else {
             const datos = await respuesta.json();
@@ -301,6 +377,8 @@ async function borrarAsignatura(id) {
 
         if (respuesta.ok) {
             mostrarMensaje("Asignatura borrada correctamente", "exito");
+            // PAGINACIÓN: Reiniciar a página 1 después de borrar
+            paginaActualAsignaturas = 1;
             cargarAsignaturas();
         } else {
             mostrarMensaje("Error al borrar asignatura", "error");
@@ -335,6 +413,8 @@ document.getElementById("form-crear-asignatura").addEventListener("submit", asyn
         if (respuesta.ok) {
             mostrarMensaje("Asignatura agregada correctamente", "exito");
             this.reset();
+        
+            paginaActualAsignaturas = 1;
             cargarAsignaturas();
         } else {
             mostrarMensaje("Error: " + datos.detail, "error");
@@ -348,7 +428,7 @@ document.getElementById("form-crear-asignatura").addEventListener("submit", asyn
 
 async function cargarMatriculas() {
     try {
-        const respuesta = await fetch("/matriculas/", {
+        const respuesta = await fetch(`/matriculas/?pagina=${paginaActualMatriculas}&limite=${REGISTROS_POR_PAGINA}`, {
             method: "GET",
             headers: { "token": token }
         });
@@ -359,9 +439,18 @@ async function cargarMatriculas() {
         }
 
         const datos = await respuesta.json();
-        listaMatriculas = datos.Matriculas;
+        
+       
+        if (paginaActualMatriculas === 1) {
+            listaMatriculas = datos.Matriculas;
+        } else {
+            listaMatriculas = listaMatriculas.concat(datos.Matriculas);
+        }
 
         dibujarTablaMatriculas();
+        
+
+        mostrarBotonVerMasMatriculas(datos.hay_mas);
 
     } catch (error) {
         mostrarMensaje("Error de conexion al cargar matriculas", "error");
@@ -389,6 +478,30 @@ function dibujarTablaMatriculas() {
         `;
         tbody.appendChild(fila);
     });
+}
+
+// PAGINACIÓN: Función para mostrar/ocultar botón "Ver más"
+function mostrarBotonVerMasMatriculas(hayMas) {
+    let boton = document.getElementById("btn-ver-mas-matriculas");
+    
+    if (!boton) {
+        boton = document.createElement("button");
+        boton.id = "btn-ver-mas-matriculas";
+        boton.className = "btn-ver-mas";
+        boton.textContent = "Ver más matrículas";
+        boton.style.marginTop = "10px";
+        boton.style.padding = "8px 16px";
+        boton.style.cursor = "pointer";
+        boton.onclick = () => {
+            paginaActualMatriculas++;
+            cargarMatriculas();
+        };
+        
+        const tableContainer = document.getElementById("tbody-matriculas").parentElement.parentElement;
+        tableContainer.appendChild(boton);
+    }
+    
+    boton.style.display = hayMas ? "block" : "none";
 }
 
 function activarEdicionMatricula(id) {
@@ -437,6 +550,8 @@ async function guardarMatricula(id) {
 
         if (respuesta.ok) {
             mostrarMensaje("Matricula actualizada correctamente", "exito");
+            // PAGINACIÓN: Reiniciar a página 1 después de guardar
+            paginaActualMatriculas = 1;
             cargarMatriculas();
         } else {
             const datos = await respuesta.json();
@@ -457,6 +572,8 @@ async function borrarMatricula(id) {
 
         if (respuesta.ok) {
             mostrarMensaje("Matricula borrada correctamente", "exito");
+            // PAGINACIÓN: Reiniciar a página 1 después de borrar
+            paginaActualMatriculas = 1;
             cargarMatriculas();
         } else {
             mostrarMensaje("Error al borrar matricula", "error");
@@ -516,6 +633,7 @@ document.getElementById("form-crear-matricula").addEventListener("submit", async
             mostrarMensaje("Matricula agregada correctamente", "exito");
             this.reset();
             actualizarSelectsMatricula();
+            paginaActualMatriculas = 1;
             cargarMatriculas();
         } else {
             mostrarMensaje("Error: " + datos.detail, "error");

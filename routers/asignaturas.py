@@ -15,14 +15,30 @@ router = APIRouter(
 
 @router.get("/")
 def ver_asignaturas(
+    pagina: int = 1,
+    limite: int = 10,
     base_datos: Session = Depends(abrir_conexion_a_bd),
     usuario: dict = Depends(permiso_admin)
 ):
+
     
+    inicio = (pagina - 1) * limite
+   
     check = base_datos.query(Asignaturas).all()
-    many = len(check)
+    total = len(check)
     
-    return {"Mensaje": f"Se encontraron {many} asignaturas", "Asignaturas": check}
+   
+    asignaturas_paginadas = check[inicio:inicio + limite]
+    many = len(asignaturas_paginadas)
+    
+  
+    hay_mas = (inicio + limite) < total
+    
+    return {
+        "Mensaje": f"Se encontraron {many} asignaturas",
+        "Asignaturas": asignaturas_paginadas,
+        "hay_mas": hay_mas
+    }
 
 
 @router.post("/", status_code=status.HTTP_201_CREATED)

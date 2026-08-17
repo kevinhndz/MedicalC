@@ -15,16 +15,23 @@ router = APIRouter(
 
 @router.get("/")
 def ver_matriculas(
+    pagina: int = 1,
+    limite: int = 10,
     base_datos: Session = Depends(abrir_conexion_a_bd),
     usuario: dict = Depends(permiso_admin)
 ):
     
-   
     matriculas = base_datos.query(Matriculas).all()
+    total = len(matriculas)
+    
+
+    inicio = (pagina - 1) * limite
+    
+    matriculas_paginadas = matriculas[inicio:inicio + limite]
     
    
     resultado = []
-    for matricula in matriculas:
+    for matricula in matriculas_paginadas:
         estudiante = base_datos.query(Estudiantes).filter(Estudiantes.id == matricula.id_est).first()
         asignatura = base_datos.query(Asignaturas).filter(Asignaturas.id == matricula.id_asig).first()
         
@@ -37,8 +44,15 @@ def ver_matriculas(
             "correo_estudiante": estudiante.correo if estudiante else "N/A"
         })
     
+    # PAGINACIÓN: Verificar si hay más
+    hay_mas = (inicio + limite) < total
     many = len(resultado)
-    return {"Mensaje": f"Se encontraron {many} matriculas", "Matriculas": resultado}
+    
+    return {
+        "Mensaje": f"Se encontraron {many} matriculas",
+        "Matriculas": resultado,
+        "hay_mas": hay_mas
+    }
 
 
 @router.post("/", status_code=status.HTTP_201_CREATED)
