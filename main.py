@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, FastAPI, Header, HTTPException, status, 
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
 
-from routers import estudiantes, registrar, asignaturas, login
+from routers import estudiantes, registrar, asignaturas, login, matriculas
 from models.almacen import miClaseBase, motor
 
 app = FastAPI()
@@ -34,3 +34,4 @@ app.include_router(login.router)
 app.include_router(estudiantes.router)
 app.include_router(registrar.router)
 app.include_router(asignaturas.router)
+app.include_router(matriculas.router)

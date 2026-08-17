@@ -190,7 +190,7 @@ document.getElementById("form-crear-estudiante").addEventListener("submit", asyn
     }
 });
 
-/* ===================== ASIGNATURAS ===================== */
+
 
 async function cargarAsignaturas() {
     try {
@@ -346,12 +346,196 @@ document.getElementById("form-crear-asignatura").addEventListener("submit", asyn
 });
 
 
+async function cargarMatriculas() {
+    try {
+        const respuesta = await fetch("/matriculas/", {
+            method: "GET",
+            headers: { "token": token }
+        });
+
+        if (!respuesta.ok) {
+            mostrarMensaje("Error al cargar matriculas", "error");
+            return;
+        }
+
+        const datos = await respuesta.json();
+        listaMatriculas = datos.Matriculas;
+
+        dibujarTablaMatriculas();
+
+    } catch (error) {
+        mostrarMensaje("Error de conexion al cargar matriculas", "error");
+        console.error("Error:", error);
+    }
+}
+
+function dibujarTablaMatriculas() {
+    const tbody = document.getElementById("tbody-matriculas");
+    tbody.innerHTML = "";
+
+    listaMatriculas.forEach(mat => {
+        const fila = document.createElement("tr");
+        fila.id = "fila-mat-" + mat.id;
+
+        fila.innerHTML = `
+            <td>${mat.id}</td>
+            <td>${mat.nombre_estudiante}</td>
+            <td>${mat.correo_estudiante}</td>
+            <td>${mat.nombre_asignatura}</td>
+            <td>
+                <button class="btn-editar" onclick="activarEdicionMatricula(${mat.id})">Editar</button>
+                <button class="btn-borrar" onclick="borrarMatricula(${mat.id})">Borrar</button>
+            </td>
+        `;
+        tbody.appendChild(fila);
+    });
+}
+
+function activarEdicionMatricula(id) {
+    const mat = listaMatriculas.find(m => m.id === id);
+    if (!mat) return;
+
+    const fila = document.getElementById("fila-mat-" + id);
+
+    fila.innerHTML = `
+        <td>${mat.id}</td>
+        <td>
+            <select id="edit-estudiante-${id}">
+                ${listaEstudiantes.map(est => 
+                    `<option value="${est.id}" ${est.id === mat.id_est ? 'selected' : ''}>${est.nombre}</option>`
+                ).join('')}
+            </select>
+        </td>
+        <td>${mat.correo_estudiante}</td>
+        <td>
+            <select id="edit-asignatura-${id}">
+                ${listaAsignaturas.map(asig => 
+                    `<option value="${asig.id}" ${asig.id === mat.id_asig ? 'selected' : ''}>${asig.nombre}</option>`
+                ).join('')}
+            </select>
+        </td>
+        <td>
+            <button class="btn-guardar" onclick="guardarMatricula(${id})">Guardar</button>
+            <button class="btn-cancelar" onclick="dibujarTablaMatriculas()">Cancelar</button>
+        </td>
+    `;
+}
+
+async function guardarMatricula(id) {
+    const id_est = parseInt(document.getElementById("edit-estudiante-" + id).value);
+    const id_asig = parseInt(document.getElementById("edit-asignatura-" + id).value);
+
+    try {
+        const respuesta = await fetch(`/matriculas/${id}`, {
+            method: "PUT",
+            headers: {
+                "token": token,
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ id_est, id_asig })
+        });
+
+        if (respuesta.ok) {
+            mostrarMensaje("Matricula actualizada correctamente", "exito");
+            cargarMatriculas();
+        } else {
+            const datos = await respuesta.json();
+            mostrarMensaje("Error al actualizar: " + datos.detail, "error");
+        }
+    } catch (error) {
+        mostrarMensaje("Error de conexion al actualizar", "error");
+        console.error("Error:", error);
+    }
+}
+
+async function borrarMatricula(id) {
+    try {
+        const respuesta = await fetch(`/matriculas/${id}`, {
+            method: "DELETE",
+            headers: { "token": token }
+        });
+
+        if (respuesta.ok) {
+            mostrarMensaje("Matricula borrada correctamente", "exito");
+            cargarMatriculas();
+        } else {
+            mostrarMensaje("Error al borrar matricula", "error");
+        }
+    } catch (error) {
+        mostrarMensaje("Error de conexion al borrar", "error");
+        console.error("Error:", error);
+    }
+}
+
+function actualizarSelectsMatricula() {
+    const selectEst = document.getElementById("select-estudiante");
+    const selectAsig = document.getElementById("select-asignatura");
+
+    selectEst.innerHTML = '<option value="">-- Selecciona un Estudiante --</option>';
+    selectAsig.innerHTML = '<option value="">-- Selecciona una Asignatura --</option>';
+
+    listaEstudiantes.forEach(est => {
+        const option = document.createElement("option");
+        option.value = est.id;
+        option.textContent = est.nombre;
+        selectEst.appendChild(option);
+    });
+
+    listaAsignaturas.forEach(asig => {
+        const option = document.createElement("option");
+        option.value = asig.id;
+        option.textContent = asig.nombre;
+        selectAsig.appendChild(option);
+    });
+}
+
+document.getElementById("form-crear-matricula").addEventListener("submit", async function (e) {
+    e.preventDefault();
+
+    const id_est = parseInt(document.getElementById("select-estudiante").value);
+    const id_asig = parseInt(document.getElementById("select-asignatura").value);
+
+    if (!id_est || !id_asig) {
+        mostrarMensaje("Por favor selecciona estudiante y asignatura", "error");
+        return;
+    }
+
+    try {
+        const respuesta = await fetch("/matriculas/", {
+            method: "POST",
+            headers: {
+                "token": token,
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ id_est, id_asig })
+        });
+
+        const datos = await respuesta.json();
+
+        if (respuesta.ok) {
+            mostrarMensaje("Matricula agregada correctamente", "exito");
+            this.reset();
+            actualizarSelectsMatricula();
+            cargarMatriculas();
+        } else {
+            mostrarMensaje("Error: " + datos.detail, "error");
+        }
+    } catch (error) {
+        mostrarMensaje("Error de conexion al agregar matricula", "error");
+        console.error("Error:", error);
+    }
+});
+
+
+let listaMatriculas = [];
+
 const rolNormalizado = rol ? rol.trim() : "";
 
 if (rolNormalizado === "Administrador") {
     document.getElementById("modulo-estudiantes").style.display = "block";
     document.getElementById("formulario-estudiante").style.display = "block";
     document.getElementById("modulo-asignaturas").style.display = "block";
+    document.getElementById("modulo-matriculas").style.display = "block";
 } else if (rolNormalizado === "Profesor") {
     document.getElementById("modulo-estudiantes").style.display = "block";
     document.getElementById("formulario-estudiante").style.display = "block";
@@ -364,4 +548,10 @@ cargarEstudiantes();
 
 if (rolNormalizado === "Administrador") {
     cargarAsignaturas();
+    
+    
+    setTimeout(() => {
+        actualizarSelectsMatricula();
+        cargarMatriculas();
+    }, 500);
 }

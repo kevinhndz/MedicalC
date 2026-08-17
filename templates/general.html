@@ -91,6 +91,42 @@
             </table>
         </div>
 
+        <div id="modulo-matriculas" style="display:none;">
+            <h2>Modulo de Matriculas</h2>
+            
+            <div id="formulario-matricula">
+                <h3>Agregar Matricula</h3>
+                <form id="form-crear-matricula">
+                    <label>Selecciona un Estudiante:</label>
+                    <select id="select-estudiante" required>
+                        <option value="">-- Cargando estudiantes --</option>
+                    </select>
+                    
+                    <label>Selecciona una Asignatura:</label>
+                    <select id="select-asignatura" required>
+                        <option value="">-- Cargando asignaturas --</option>
+                    </select>
+                    
+                    <button type="submit">Matricular Estudiante</button>
+                </form>
+            </div>
+
+            <h3>Lista de Matriculas</h3>
+            <table id="tabla-matriculas" border="1">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Estudiante</th>
+                        <th>Correo</th>
+                        <th>Asignatura</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="tbody-matriculas">
+                </tbody>
+            </table>
+        </div>
+
     </div>
 
     <script src="/static/general.js"></script>
