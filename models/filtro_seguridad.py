@@ -30,3 +30,8 @@ class RevisarLogin(BaseModel):
     
     user: str = Field(min_length=5, max_length=20)
     password: str = Field(min_length=6, max_length=30)
+
+
+class Revisar_JSON_de_Matriculas(BaseModel):
+    id_est: int
+    id_asig: int
