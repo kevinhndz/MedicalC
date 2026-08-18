@@ -1,13 +1,13 @@
 body {
     font-family: 'Comic Sans MS', 'Chalkboard SE', Arial, sans-serif;
-    background-color: #e0f2fe;
-    color: #333333;
+    background-color: #948e8e;
+    color: #961d1d;
     padding: 20px;
     margin: 0;
 }
 
 h1 {
-    color: #0284c7;
+    color: #737f85;
     text-align: center;
     font-size: 28px;
 }
