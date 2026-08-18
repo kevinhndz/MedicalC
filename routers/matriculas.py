@@ -44,7 +44,7 @@ def ver_matriculas(
             "correo_estudiante": estudiante.correo if estudiante else "N/A"
         })
     
-    # PAGINACIÓN: Verificar si hay más
+   
     hay_mas = (inicio + limite) < total
     many = len(resultado)
     
@@ -54,7 +54,7 @@ def ver_matriculas(
         "hay_mas": hay_mas
     }
 
-
+# crear matricula
 @router.post("/", status_code=status.HTTP_201_CREATED)
 def crear_matricula(
     json: Revisar_JSON_de_Matriculas,
