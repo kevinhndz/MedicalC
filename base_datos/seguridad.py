@@ -21,3 +21,9 @@ class Revisar_JSON_Crear_Cliente(BaseModel):
     user: str = Field(..., min_length=4, max_length=30, pattern="^[a-zA-Z0-9_-]+$")
     password: str = Field(..., min_length=6, max_length=100)
     rol: str = Field(..., min_length=3, max_length=20)
+    
+
+class Revisar_JSON_Usuario (BaseModel):
+    
+    user: str = Field(..., min_length=5, max_length= 15)
+    password: str = Field(..., min_length=6, max_length=20)
