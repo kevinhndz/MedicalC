@@ -5,6 +5,8 @@ from base_datos.almacen import abrir_puerta_a_bd
 from base_datos.seguridad import Revisar_JSON_Crear_Cliente, Revisar_JSON_Crear_Doctor
 from base_datos.tablas import Clientes, Doctores, Usuarios
 
+from utils.hash import encriptar_contrasena
+
 router = APIRouter(
     prefix="/crear",
     tags=["Crear"]
@@ -17,7 +19,7 @@ def crear_nuevo_cliente(json: Revisar_JSON_Crear_Cliente, base_datos: Session = 
     if check is None:
         nuevo_usuario = Usuarios(
             user=json.user,
-            password=json.password,
+            password=encriptar_contrasena(json.password),
             rol=json.rol
         )
         base_datos.add(nuevo_usuario)
@@ -51,7 +53,7 @@ def crear_nuevo_doctor(json: Revisar_JSON_Crear_Doctor, base_datos: Session = De
     if check is None:
         nuevo_usuario = Usuarios(
             user=json.user,
-            password=json.password,
+            password=encriptar_contrasena(json.password),
             rol=json.rol
         )
         base_datos.add(nuevo_usuario)
@@ -77,6 +79,3 @@ def crear_nuevo_doctor(json: Revisar_JSON_Crear_Doctor, base_datos: Session = De
             status_code=status.HTTP_409_CONFLICT,
             detail="Doctor ya existe"
         )
-    
-
-
