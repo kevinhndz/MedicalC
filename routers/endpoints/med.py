@@ -4,12 +4,14 @@ from sqlalchemy.orm import Session
 from base_datos.almacen import abrir_puerta_a_bd
 from base_datos.seguridad import Revisar_JSON_Medicamento, Revisar_JSON_Update_Medicamento
 from base_datos.tablas import Medicamentos
+from utils.autenticacion import permiso_doctor
 
 
 router = APIRouter(
     
     prefix = "/medicamentos",
-    tags = ["Medicamentos"]
+    tags = ["Medicamentos"],
+    dependencies = [Depends(permiso_doctor)]
 )
 
 @router.get("/")
