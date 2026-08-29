@@ -53,3 +53,14 @@ class Consultas(miclaseBase):
     diagnostico = Column(String, nullable=False)
     tratamiento = Column(String, nullable=False)
     notas = Column(String, nullable=True)
+
+
+class Medicamentos (miclaseBase):
+    
+    __tablename__ = "Medicamentos"
+    
+    id = Column(Integer, primary_key=True)
+    nombre = Column(String, unique= True, nullable= False)
+    presentacion = Column(String)
+    stock = Column(Integer, nullable= False)
+    

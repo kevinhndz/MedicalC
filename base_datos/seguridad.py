@@ -36,3 +36,15 @@ class Revisar_JSON_Actualizar_Paciente(BaseModel):
     correo: Optional[EmailStr] = None
     identidad: Optional[str] = None
     edad: Optional[int] = None
+    
+class Revisar_JSON_Medicamento(BaseModel):
+    
+    nombre: str
+    presentacion: str
+    stock : int = Field(ge = 0)
+
+class Revisar_JSON_Update_Medicamento (BaseModel):
+    
+    nombre: Optional[str] = None
+    presentacion: Optional[str]= None
+    stock : Optional[int] = None
