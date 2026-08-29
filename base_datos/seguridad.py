@@ -48,3 +48,18 @@ class Revisar_JSON_Update_Medicamento (BaseModel):
     nombre: Optional[str] = None
     presentacion: Optional[str]= None
     stock : Optional[int] = None
+    
+
+class Revisar_JSON_Crear_Cita (BaseModel):
+    
+    identidad : int
+    no_colegiacion: int
+    fecha_hora :str
+    motivo : str
+    
+class Revisar_JSON_Registrar_Consulta (BaseModel):
+    id_cita : int
+    diagnostico : str
+    tratamiento : str
+    notas : Optional[str]= None
+    
