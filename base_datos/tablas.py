@@ -1,4 +1,4 @@
-from sqlalchemy import Column, ForeignKey, Integer, String
+from sqlalchemy import Column, ForeignKey, Integer, String, DateTime, Time
 from base_datos.almacen import miclaseBase
 
 
@@ -34,3 +34,22 @@ class Usuarios(miclaseBase):
     password = Column(String, nullable=False)
     rol = Column(String, nullable=False)
     
+
+class Citas(miclaseBase):
+    __tablename__ = "Citas"
+    
+    id = Column(Integer, primary_key=True)
+    id_cliente = Column(Integer, ForeignKey("Clientes.id"), nullable=False)
+    id_doctor = Column(Integer, ForeignKey("Doctores.id"), nullable=False)
+    fecha_hora = Column(DateTime, nullable=False)
+    motivo = Column(String, nullable=True)
+    estado = Column(String, default="pendiente", nullable=False)
+    
+class Consultas(miclaseBase):
+    __tablename__ = "Consultas"
+    
+    id = Column(Integer, primary_key=True)
+    id_cita = Column(Integer, ForeignKey("Citas.id"), unique=True, nullable=False)
+    diagnostico = Column(String, nullable=False)
+    tratamiento = Column(String, nullable=False)
+    notas = Column(String, nullable=True)
