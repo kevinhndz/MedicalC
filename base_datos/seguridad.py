@@ -1,4 +1,5 @@
 from pydantic import BaseModel, EmailStr, Field
+from typing import Optional
 
 
 class Revisar_JSON_Crear_Doctor(BaseModel):
@@ -27,3 +28,11 @@ class Revisar_JSON_Usuario (BaseModel):
     
     user: str = Field(..., min_length=5, max_length= 15)
     password: str = Field(..., min_length=6, max_length=20)
+
+
+class Revisar_JSON_Actualizar_Paciente(BaseModel):
+    nombre: Optional[str] = None
+    telefono: Optional[str] = None
+    correo: Optional[EmailStr] = None
+    identidad: Optional[str] = None
+    edad: Optional[int] = None
