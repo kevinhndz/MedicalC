@@ -4,10 +4,12 @@ from base_datos.almacen import abrir_puerta_a_bd
 
 from base_datos.seguridad import Revisar_JSON_Actualizar_Paciente
 from base_datos.tablas import Clientes
+from utils.autenticacion import permiso_doctor
 
 router = APIRouter(
     prefix="/pacientes",
-    tags=["Pacientes"]
+    tags=["Pacientes"],
+    dependencies= [Depends(permiso_doctor)]  # al poner esta dependenica todos los endpoints se protegen
 )
 
 @router.get("/")
@@ -15,6 +17,7 @@ def ver_pacientes(
     base_datos: Session = Depends(abrir_puerta_a_bd),
     limite: int = Query(10, ge=1, le=100), 
     salto: int = Query(0, ge=0)
+    #doctor: dict = Depends(permiso_doctor)  (asi no pongo eso!)
 ):
     check = base_datos.query(Clientes).offset(salto).limit(limite).all()
     
