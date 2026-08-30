@@ -45,6 +45,7 @@ class Citas(miclaseBase):
     motivo = Column(String, nullable=True)
     estado = Column(String, default="pendiente", nullable=False)
     
+
 class Consultas(miclaseBase):
     __tablename__ = "Consultas"
     
@@ -55,25 +56,20 @@ class Consultas(miclaseBase):
     notas = Column(String, nullable=True)
 
 
-class Medicamentos (miclaseBase):
-    
+class Medicamentos(miclaseBase):
     __tablename__ = "Medicamentos"
     
     id = Column(Integer, primary_key=True)
-    nombre = Column(String, unique= True, nullable= False)
+    nombre = Column(String, unique=True, nullable=False)
     presentacion = Column(String)
-    stock = Column(Integer, nullable= False)
+    stock = Column(Integer, nullable=False)
     
 
-class Consultas (miclaseBase):
-    
-    __tablename__ = "Consultas"
+class Recetas(miclaseBase):
+    __tablename__ = "Recetas"
     
     id = Column(Integer, primary_key=True)
-    id_cita = Column(Integer, ForeignKey("Citas.id"))
-    diagnostico = Column(String, nullable = False)
-    tratamiento = Column(String, nullable = False)
-    notas = Column(String, nullable = True)
-    
-    
-    
+    id_consulta = Column(Integer, ForeignKey("Consultas.id"), nullable=False)
+    id_medicamento = Column(Integer, ForeignKey("Medicamentos.id"), nullable=False)
+    cantidad = Column(Integer, nullable=False)
+    indicaciones = Column(String, nullable=True)
