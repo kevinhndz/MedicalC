@@ -36,7 +36,21 @@ def crear_nueva_cita(
 ):
     
     datos_paciente = base_datos.query(Clientes).filter(Clientes.identidad == json.identidad).first()
-    datos_doctor = base_datos.query(Clientes).filter(Doctores.no_colegiacion == json.no_colegiacion).first()
+    
+    if datos_paciente is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Paciente no encontrado"
+        )
+    
+
+    datos_doctor = base_datos.query(Doctores).filter(Doctores.no_colegiacion == json.no_colegiacion).first()
+    
+    if datos_doctor is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Doctor no encontrado"
+        )
     
     nueva_cita = Citas(
         
@@ -50,4 +64,35 @@ def crear_nueva_cita(
     base_datos.commit()
     base_datos.refresh(nueva_cita)
     return nueva_cita
+
+
+@router.patch("/{cita_id}/cancelar")
+def cancelar_cita(
+    cita_id: int,
+    base_datos: Session = Depends(abrir_puerta_a_bd)
+):
+    
+    cita = base_datos.query(Citas).filter(Citas.id == cita_id).first()
+    
+    if cita is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"La cita con ID {cita_id} no existe"
+        )
+    
+    if cita.estado != "pendiente":
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Solo se pueden cancelar citas en estado 'pendiente'. Estado actual: {cita.estado}"
+        )
+    
+    cita.estado = "cancelada"
+    base_datos.commit()
+    base_datos.refresh(cita)
+    
+    return {
+        "mensaje": "Cita cancelada exitosamente",
+        "cita_id": cita.id,
+        "estado": cita.estado
+    }
 
