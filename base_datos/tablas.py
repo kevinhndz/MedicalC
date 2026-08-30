@@ -64,3 +64,16 @@ class Medicamentos (miclaseBase):
     presentacion = Column(String)
     stock = Column(Integer, nullable= False)
     
+
+class Consultas (miclaseBase):
+    
+    __tablename__ = "Consultas"
+    
+    id = Column(Integer, primary_key=True)
+    id_cita = Column(Integer, ForeignKey("Citas.id"))
+    diagnostico = Column(String, nullable = False)
+    tratamiento = Column(String, nullable = False)
+    notas = Column(String, nullable = True)
+    
+    
+    
