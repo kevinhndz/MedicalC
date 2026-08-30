@@ -52,9 +52,9 @@ class Revisar_JSON_Update_Medicamento (BaseModel):
 
 class Revisar_JSON_Crear_Cita (BaseModel):
     
-    identidad : int
-    no_colegiacion: int
-    fecha_hora :str
+    identidad : str
+    no_colegiacion: str
+    fecha_hora : str
     motivo : str
     
 class Revisar_JSON_Registrar_Consulta (BaseModel):
@@ -62,4 +62,11 @@ class Revisar_JSON_Registrar_Consulta (BaseModel):
     diagnostico : str
     tratamiento : str
     notas : Optional[str]= None
-    
+
+
+
+class Revisar_JSON_Crear_Receta (BaseModel):
+    id_consulta : int
+    id_medicamento : int
+    cantidad : int = Field(..., ge=1)
+    indicaciones : Optional[str] = None
