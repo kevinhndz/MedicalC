@@ -8,24 +8,17 @@ from utils.boletos import crear_boleto
 from utils.hash import verificar_contrasena  
 
 router = APIRouter(
-    prefix="/login",
     tags=["Login"]
 )
 
-@router.post("/")
+@router.post("/login")
 def login(
     json: Revisar_JSON_Usuario,
     base_datos: Session = Depends(abrir_puerta_a_bd)
 ):
     check = base_datos.query(Usuarios).filter(Usuarios.user == json.user).first()
     
-    if check is None:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Usuario o contraseña incorrectos"
-        )
-    
-    if not verificar_contrasena(json.password, check.password):
+    if check is None or not verificar_contrasena(json.password, check.password):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Usuario o contraseña incorrectos"
