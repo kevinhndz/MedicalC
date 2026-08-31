@@ -37,92 +37,76 @@
         <p id="login-error" class="aviso aviso-error" hidden></p>
 
         <div class="login-alt-acciones">
-          <a href="#" id="link-crear-paciente">Crear cuenta como paciente</a>
-          <a href="#" id="link-crear-doctor">Crear cuenta como doctor</a>
+          <a href="#" id="link-crear-usuario">¿No tienes cuenta? Crear usuario</a>
         </div>
       </form>
 
-      <!-- ---- CREAR CUENTA: PACIENTE ---- -->
-      <form id="form-cliente" class="ficha-login oculto" autocomplete="off">
-        <h2>Crear cuenta de paciente</h2>
+      <!-- ---- CREAR USUARIO (Tabs para doctor/paciente) ---- -->
+      <div id="panel-crear-usuario" class="ficha-login oculto" autocomplete="off">
+        <h2>Crear usuario</h2>
+        
+        <div class="sub-tabs">
+          <button type="button" class="sub-tab activo" data-tipo-usuario="paciente">Paciente</button>
+          <button type="button" class="sub-tab" data-tipo-usuario="doctor">Doctor</button>
+        </div>
 
-        <label for="cl-nombre">Nombre completo</label>
-        <input id="cl-nombre" required minlength="3" />
+        <!-- FORM PACIENTE -->
+        <form id="form-crear-paciente" class="forma-usuario-activa" autocomplete="off">
+          <label for="cl-nombre">Nombre completo</label>
+          <input id="cl-nombre" required minlength="3" />
 
-        <label for="cl-identidad">Identidad</label>
-        <input id="cl-identidad" required minlength="5" />
+          <label for="cl-identidad">Identidad</label>
+          <input id="cl-identidad" required minlength="5" />
 
-        <label for="cl-telefono">Teléfono</label>
-        <input id="cl-telefono" required minlength="8" />
+          <label for="cl-telefono">Teléfono</label>
+          <input id="cl-telefono" required minlength="8" />
 
-        <label for="cl-correo">Correo</label>
-        <input id="cl-correo" type="email" required />
+          <label for="cl-correo">Correo</label>
+          <input id="cl-correo" type="email" required />
 
-        <label for="cl-edad">Edad</label>
-        <input id="cl-edad" type="number" min="0" max="120" required />
+          <label for="cl-edad">Edad</label>
+          <input id="cl-edad" type="number" min="0" max="120" required />
 
-        <label for="cl-user">Usuario</label>
-        <input id="cl-user" required minlength="4" pattern="^[a-zA-Z0-9_-]+$" />
+          <label for="cl-user">Usuario</label>
+          <input id="cl-user" required minlength="4" pattern="^[a-zA-Z0-9_-]+$" />
 
-        <label for="cl-password">Contraseña</label>
-        <input id="cl-password" type="password" required minlength="6" />
+          <label for="cl-password">Contraseña</label>
+          <input id="cl-password" type="password" required minlength="6" />
 
-        <input type="hidden" id="cl-rol" value="cliente" />
+          <button type="submit" class="btn btn-primario btn-full">Crear cuenta de paciente</button>
+          <p id="crear-paciente-error" class="aviso aviso-error" hidden></p>
+        </form>
 
-        <button type="submit" class="btn btn-primario btn-full">
-          <span class="btn-texto">Crear cuenta</span>
-        </button>
+        <!-- FORM DOCTOR -->
+        <form id="form-crear-doctor" class="forma-usuario-oculta oculto" autocomplete="off">
+          <label for="d-nombre">Nombre completo</label>
+          <input id="d-nombre" required minlength="3" />
 
-        <p id="cliente-error" class="aviso aviso-error" hidden></p>
+          <label for="d-colegiacion">No. de colegiación</label>
+          <input id="d-colegiacion" required minlength="3" />
+
+          <label for="d-especialidad">Especialidad</label>
+          <input id="d-especialidad" required minlength="3" />
+
+          <label for="d-telefono">Teléfono</label>
+          <input id="d-telefono" required minlength="8" />
+
+          <label for="d-correo">Correo</label>
+          <input id="d-correo" type="email" required />
+
+          <label for="d-user">Usuario</label>
+          <input id="d-user" required minlength="4" pattern="^[a-zA-Z0-9_-]+$" />
+
+          <label for="d-password">Contraseña</label>
+          <input id="d-password" type="password" required minlength="6" />
+
+          <button type="submit" class="btn btn-primario btn-full">Crear cuenta de doctor</button>
+          <p id="crear-doctor-error" class="aviso aviso-error" hidden></p>
+        </form>
 
         <div class="login-alt-acciones">
           <a href="#" data-volver-login>Volver a iniciar sesión</a>
         </div>
-      </form>
-
-      <!-- ---- CREAR CUENTA: DOCTOR ---- -->
-      <form id="form-doctor" class="ficha-login oculto" autocomplete="off">
-        <h2>Crear cuenta de doctor</h2>
-
-        <label for="d-nombre">Nombre completo</label>
-        <input id="d-nombre" required minlength="3" />
-
-        <label for="d-colegiacion">No. de colegiación</label>
-        <input id="d-colegiacion" required minlength="3" />
-
-        <label for="d-especialidad">Especialidad</label>
-        <input id="d-especialidad" required minlength="3" />
-
-        <label for="d-telefono">Teléfono</label>
-        <input id="d-telefono" required minlength="8" />
-
-        <label for="d-correo">Correo</label>
-        <input id="d-correo" type="email" required />
-
-        <label for="d-user">Usuario</label>
-        <input id="d-user" required minlength="4" pattern="^[a-zA-Z0-9_-]+$" />
-
-        <label for="d-password">Contraseña</label>
-        <input id="d-password" type="password" required minlength="6" />
-
-        <input type="hidden" id="d-rol" value="doctor" />
-
-        <button type="submit" class="btn btn-primario btn-full">
-          <span class="btn-texto">Crear cuenta</span>
-        </button>
-
-        <p id="doctor-error" class="aviso aviso-error" hidden></p>
-
-        <div class="login-alt-acciones">
-          <a href="#" data-volver-login>Volver a iniciar sesión</a>
-        </div>
-      </form>
-
-      <!-- ---- CUENTA CREADA ---- -->
-      <div id="panel-cuenta-creada" class="ficha-login oculto">
-        <h2>Cuenta creada</h2>
-        <p id="cuenta-creada-texto" class="ficha-login-nota"></p>
-        <button type="button" id="btn-ir-a-login" class="btn btn-primario btn-full">Iniciar sesión</button>
       </div>
 
     </div>
@@ -180,7 +164,6 @@
     <main class="contenido">
       <header class="contenido-encabezado">
         <h2 id="vista-titulo">Panorama</h2>
-        <div id="toast" class="toast" hidden></div>
       </header>
 
       <div id="vista-cuerpo" class="vista-cuerpo">
@@ -188,6 +171,8 @@
       </div>
     </main>
   </div>
+
+  <div id="toast" class="toast" hidden></div>
 
   <script src="app.js"></script>
 </body>
