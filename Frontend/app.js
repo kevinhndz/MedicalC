@@ -153,9 +153,15 @@ function entrarApp() {
   document.getElementById("sesion-user").textContent = estado.user;
   document.getElementById("sesion-rol").textContent = estado.rol;
 
-  // Oculta todo lo que requiere rol "doctor"
-  document.querySelectorAll("[data-solo-doctor]").forEach((el) => {
-    el.classList.toggle("oculto", !esDoctor());
+  // Oculta todo lo que requiere rol "doctor" y, si es paciente,
+  // deja visible únicamente el módulo de Citas
+  document.querySelectorAll(".nav-item").forEach((el) => {
+    const vista = el.dataset.vista;
+    const soloDoctor = el.hasAttribute("data-solo-doctor");
+    let oculto = false;
+    if (soloDoctor && !esDoctor()) oculto = true;
+    if (esPaciente() && vista !== "citas") oculto = true;
+    el.classList.toggle("oculto", oculto);
   });
 
   // Si es paciente, solo permite ver citas
@@ -235,7 +241,7 @@ document.getElementById("form-crear-paciente").addEventListener("submit", async 
   try {
     await pedir("/crear/nuevo_cliente", { method: "POST", body: JSON.stringify(cuerpoJson) });
     document.getElementById("form-crear-paciente").reset();
-    toast(`Cuenta de paciente "${cuerpoJson.user}" creada. Inicia sesión.`);
+    toast(`Usuario "${cuerpoJson.user}" creado exitosamente. ¡Ahora inicia sesión!`);
     mostrarPanelAcceso("login");
   } catch (e) {
     err.textContent = e.message;
@@ -262,7 +268,7 @@ document.getElementById("form-crear-doctor").addEventListener("submit", async (e
   try {
     await pedir("/crear/nuevo_doctor", { method: "POST", body: JSON.stringify(cuerpoJson) });
     document.getElementById("form-crear-doctor").reset();
-    toast(`Cuenta de doctor "${cuerpoJson.user}" creada. Inicia sesión.`);
+    toast(`Usuario "${cuerpoJson.user}" creado exitosamente. ¡Ahora inicia sesión!`);
     mostrarPanelAcceso("login");
   } catch (e) {
     err.textContent = e.message;
@@ -379,12 +385,80 @@ async function renderInicio(cuerpo) {
 // CITAS  ·  GET/POST /citas  ·  PATCH /citas/{id}/cancelar
 // =====================================================================
 
+// Vista simplificada para el rol "cliente": solo puede agendar,
+// no ve el listado completo de citas.
+async function renderCitasPaciente(cuerpo) {
+  const doctores = await pedirListaSegura("/doctores/?limite=100");
+
+  cuerpo.innerHTML = `
+    <div class="ficha">
+      <div class="ficha-encabezado">
+        <div>
+          <h3>Agendar cita</h3>
+        </div>
+      </div>
+      <form id="form-cita" class="form-rejilla">
+        <div class="campo">
+          <label for="c-identidad">Identidad del paciente</label>
+          <input id="c-identidad" required placeholder="0801-1990-00000" />
+        </div>
+        <div class="campo">
+          <label for="c-colegiacion">Doctor</label>
+          <select id="c-colegiacion" required>
+            <option value="">Selecciona un doctor</option>
+            ${doctores.map((d) => `<option value="${escapar(d.no_colegiacion)}">${escapar(d.nombre)} — ${escapar(d.especialidad)} (${escapar(d.no_colegiacion)})</option>`).join("")}
+          </select>
+        </div>
+        <div class="campo">
+          <label for="c-fecha">Fecha y hora</label>
+          <input id="c-fecha" type="datetime-local" required />
+        </div>
+        <div class="campo">
+          <label for="c-motivo">Motivo</label>
+          <input id="c-motivo" required placeholder="Control mensual" />
+        </div>
+        <div class="campo">
+          <button type="submit" class="btn btn-primario">Agendar cita</button>
+        </div>
+      </form>
+      <p id="cita-error" class="aviso aviso-error" hidden></p>
+    </div>
+  `;
+
+  document.getElementById("form-cita").addEventListener("submit", async (ev) => {
+    ev.preventDefault();
+    const err = document.getElementById("cita-error");
+    err.hidden = true;
+
+    const fechaValor = document.getElementById("c-fecha").value; // "YYYY-MM-DDTHH:MM"
+    const cuerpoJson = {
+      identidad: document.getElementById("c-identidad").value.trim(),
+      no_colegiacion: document.getElementById("c-colegiacion").value,
+      fecha_hora: fechaValor.length === 16 ? `${fechaValor}:00` : fechaValor,
+      motivo: document.getElementById("c-motivo").value.trim(),
+    };
+
+    try {
+      await pedir("/citas/agendar_cita", { method: "POST", body: JSON.stringify(cuerpoJson) });
+      toast(`Cita agendada, ${estado.user}!`);
+      document.getElementById("form-cita").reset();
+    } catch (e) {
+      err.textContent = e.message;
+      err.hidden = false;
+    }
+  });
+}
+
 async function renderCitas(cuerpo) {
-  const [citas, doctores] = await Promise.all([
+  if (esPaciente()) return renderCitasPaciente(cuerpo);
+
+  const [citas, doctores, pacientes] = await Promise.all([
     pedirListaSegura("/citas/?limite=90"),
     pedirListaSegura("/doctores/?limite=100"),
+    pedirListaSegura("/pacientes/?limite=100"),
   ]);
   const mapaDoctores = new Map(doctores.map((d) => [d.id, d]));
+  const mapaClientes = new Map(pacientes.map((p) => [p.id, p]));
 
   cuerpo.innerHTML = `
     <div class="ficha">
@@ -427,7 +501,7 @@ async function renderCitas(cuerpo) {
       <div class="tabla-envoltura">
         <table class="tabla">
           <thead><tr>
-            <th>ID</th><th>Paciente (id_cliente)</th><th>Doctor</th><th>Fecha</th><th>Motivo</th><th>Estado</th><th></th>
+            <th>ID</th><th>Paciente</th><th>Doctor</th><th>Fecha</th><th>Motivo</th><th>Estado</th><th></th>
           </tr></thead>
           <tbody id="cuerpo-citas"></tbody>
         </table>
@@ -435,7 +509,7 @@ async function renderCitas(cuerpo) {
     </div>
   `;
 
-  pintarTablaCitas(citas, mapaDoctores);
+  pintarTablaCitas(citas, mapaDoctores, mapaClientes);
 
   document.getElementById("form-cita").addEventListener("submit", async (ev) => {
     ev.preventDefault();
@@ -461,7 +535,7 @@ async function renderCitas(cuerpo) {
   });
 }
 
-function pintarTablaCitas(citas, mapaDoctores) {
+function pintarTablaCitas(citas, mapaDoctores, mapaClientes) {
   const tbody = document.getElementById("cuerpo-citas");
   if (!citas.length) {
     tbody.innerHTML = `<tr><td colspan="7" class="celda-vacia">${estadoVacio("Aún no hay citas agendadas.")}</td></tr>`;
@@ -469,11 +543,12 @@ function pintarTablaCitas(citas, mapaDoctores) {
   }
   tbody.innerHTML = citas.map((cita) => {
     const doctor = mapaDoctores.get(cita.id_doctor);
+    const cliente = mapaClientes.get(cita.id_cliente);
     const puedeCancelar = (cita.estado || "").toLowerCase() === "pendiente";
     return `
       <tr>
         <td class="celda-mono">#${cita.id}</td>
-        <td class="celda-mono">${escapar(cita.id_cliente)}</td>
+        <td>${cliente ? escapar(cliente.nombre) : `<span class="celda-mono">#${cita.id_cliente}</span>`}</td>
         <td>${doctor ? escapar(doctor.nombre) : `<span class="celda-mono">#${cita.id_doctor}</span>`}</td>
         <td>${formatoFechaHora(cita.fecha_hora)}</td>
         <td>${escapar(cita.motivo || "—")}</td>
@@ -503,11 +578,13 @@ function pintarTablaCitas(citas, mapaDoctores) {
 // =====================================================================
 
 async function renderConsultas(cuerpo) {
-  const [consultas, citas] = await Promise.all([
+  const [consultas, citas, pacientes] = await Promise.all([
     pedirListaSegura("/consulta/?limite=80"),
     pedirListaSegura("/citas/?limite=90"),
+    pedirListaSegura("/pacientes/?limite=100"),
   ]);
 
+  const mapaClientes = new Map(pacientes.map((p) => [p.id, p]));
   const citasPendientes = citas.filter((c) => (c.estado || "").toLowerCase() === "pendiente");
   const mapaCitas = new Map(citas.map((c) => [c.id, c]));
 
@@ -523,7 +600,11 @@ async function renderConsultas(cuerpo) {
           <label for="cn-cita">Cita pendiente</label>
           <select id="cn-cita" required>
             <option value="">Selecciona una cita</option>
-            ${citasPendientes.map((c) => `<option value="${c.id}">#${c.id} — ${formatoFechaHora(c.fecha_hora)}</option>`).join("")}
+            ${citasPendientes.map((c) => {
+              const cliente = mapaClientes.get(c.id_cliente);
+              const nombrePaciente = cliente ? cliente.nombre : `Paciente #${c.id_cliente}`;
+              return `<option value="${c.id}">#${c.id} — ${escapar(nombrePaciente)} (${formatoFechaHora(c.fecha_hora)})</option>`;
+            }).join("")}
           </select>
         </div>
         <div class="campo">
