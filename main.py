@@ -22,7 +22,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# 1. PRIMERO van tus rutas de API
+
 app.include_router(crear.router)
 app.include_router(login.router)
 app.include_router(pacientes.router)

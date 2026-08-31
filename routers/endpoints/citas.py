@@ -1,5 +1,6 @@
 from fastapi import FastAPI, HTTPException, status, Depends, APIRouter, Query
 from sqlalchemy.orm import Session
+from datetime import datetime
 
 from base_datos.almacen import abrir_puerta_a_bd
 from base_datos.tablas import Citas, Clientes, Doctores
@@ -52,11 +53,20 @@ def crear_nueva_cita(
             detail="Doctor no encontrado"
         )
     
+    
+    try:
+        fecha_datetime = datetime.fromisoformat(json.fecha_hora)
+    except ValueError:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Formato de fecha_hora invalido.  formato ISO: YYYY-MM-DDTHH:MM:SS"
+        )
+    
     nueva_cita = Citas(
         
         id_cliente = datos_paciente.id,
         id_doctor = datos_doctor.id,
-        fecha_hora = json.fecha_hora,
+        fecha_hora = fecha_datetime,
         motivo = json.motivo
         
     )
@@ -95,4 +105,3 @@ def cancelar_cita(
         "cita_id": cita.id,
         "estado": cita.estado
     }
-
