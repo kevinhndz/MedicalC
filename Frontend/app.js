@@ -1,21 +1,4 @@
-// =====================================================================
-// REGISTRO — Sistema de Clínica — app.js
-//
-// SPA en Vanilla JS conectada 1:1 a los endpoints reales de tu backend
-// FastAPI (main.py, seguridad.py, tablas.py, autenticacion.py).
-//
-// NOTA IMPORTANTE SOBRE AUTENTICACIÓN:
-// Tu `autenticacion.py` define:
-//     def el_vigilante(token: str = Header(...)): ...
-// En FastAPI, un parámetro `Header(...)` llamado `token` espera un
-// header HTTP literal llamado "token", NO "Authorization: Bearer".
-// Por eso este archivo manda el JWT en un header "token" plano.
-// Si en algún momento migras a OAuth2PasswordBearer, cambia SOLO
-// la función `pedir()` de abajo para usar Authorization: Bearer.
-// =====================================================================
-
-const API_BASE = ""; // mismo origen; cambia si tu API vive en otro host
-
+const API_BASE = ""; 
 const estado = {
   token: localStorage.getItem("registro_token") || null,
   user: localStorage.getItem("registro_user") || null,
@@ -24,10 +7,8 @@ const estado = {
 };
 
 const esDoctor = () => estado.rol === "doctor";
+const esPaciente = () => estado.rol === "cliente";
 
-// ---------------------------------------------------------------------
-// Utilidades de red
-// ---------------------------------------------------------------------
 
 async function pedir(ruta, opciones = {}) {
   const headers = { "Content-Type": "application/json", ...(opciones.headers || {}) };
@@ -65,9 +46,9 @@ async function pedirListaSegura(ruta) {
   }
 }
 
-// ---------------------------------------------------------------------
+// =====================================================================
 // Tema (claro / oscuro)
-// ---------------------------------------------------------------------
+// =====================================================================
 
 function aplicarTema(tema) {
   document.documentElement.setAttribute("data-tema", tema);
@@ -87,9 +68,9 @@ function alternarTema() {
 document.getElementById("btn-tema-login").addEventListener("click", alternarTema);
 document.getElementById("btn-tema-app").addEventListener("click", alternarTema);
 
-// ---------------------------------------------------------------------
+// =====================================================================
 // Toast
-// ---------------------------------------------------------------------
+// =====================================================================
 
 let toastTimer = null;
 function toast(mensaje, tipo = "exito") {
@@ -101,14 +82,15 @@ function toast(mensaje, tipo = "exito") {
   toastTimer = setTimeout(() => { el.hidden = true; }, 3200);
 }
 
-// ---------------------------------------------------------------------
+// =====================================================================
 // Sesión
-// ---------------------------------------------------------------------
+// =====================================================================
 
 const pantallaLogin = document.getElementById("pantalla-login");
 const appEl = document.getElementById("app");
 const formLogin = document.getElementById("form-login");
 const loginError = document.getElementById("login-error");
+const panelCrearUsuario = document.getElementById("panel-crear-usuario");
 
 formLogin.addEventListener("submit", async (ev) => {
   ev.preventDefault();
@@ -154,7 +136,7 @@ function cerrarSesion(mensaje) {
   appEl.classList.add("oculto");
   pantallaLogin.classList.remove("oculto");
   formLogin.reset();
-  mostrarPanelAcceso(formLogin);
+  mostrarPanelAcceso("login");
 
   if (mensaje) {
     loginError.textContent = mensaje;
@@ -171,21 +153,126 @@ function entrarApp() {
   document.getElementById("sesion-user").textContent = estado.user;
   document.getElementById("sesion-rol").textContent = estado.rol;
 
-  // Oculta del sidebar todo lo que requiere rol "doctor" en el backend
+  // Oculta todo lo que requiere rol "doctor"
   document.querySelectorAll("[data-solo-doctor]").forEach((el) => {
     el.classList.toggle("oculto", !esDoctor());
   });
 
-  irAVista("inicio");
+  // Si es paciente, solo permite ver citas
+  if (esPaciente()) {
+    irAVista("citas");
+  } else {
+    irAVista("inicio");
+  }
 }
 
 if (estado.token && estado.rol) {
   entrarApp();
 }
 
-// ---------------------------------------------------------------------
+// =====================================================================
+// Panel de acceso (login / crear usuario)
+// =====================================================================
+
+function mostrarPanelAcceso(panel) {
+  formLogin.classList.toggle("oculto", panel !== "login");
+  panelCrearUsuario.classList.toggle("oculto", panel !== "crear");
+}
+
+document.getElementById("link-crear-usuario").addEventListener("click", (ev) => {
+  ev.preventDefault();
+  mostrarPanelAcceso("crear");
+  mostrarTabUsuario("paciente");
+});
+
+document.querySelectorAll("[data-volver-login]").forEach((link) => {
+  link.addEventListener("click", (ev) => {
+    ev.preventDefault();
+    mostrarPanelAcceso("login");
+  });
+});
+
+// Tabs para tipo de usuario
+function mostrarTabUsuario(tipo) {
+  const formPaciente = document.getElementById("form-crear-paciente");
+  const formDoctor = document.getElementById("form-crear-doctor");
+
+  document.querySelectorAll(".sub-tab").forEach((btn) => {
+    btn.classList.toggle("activo", btn.dataset.tipoUsuario === tipo);
+  });
+
+  formPaciente.classList.toggle("oculto", tipo !== "paciente");
+  formDoctor.classList.toggle("oculto", tipo !== "doctor");
+}
+
+document.querySelectorAll(".sub-tab").forEach((btn) => {
+  btn.addEventListener("click", (ev) => {
+    ev.preventDefault();
+    mostrarTabUsuario(btn.dataset.tipoUsuario);
+  });
+});
+
+// =====================================================================
+// CREAR CUENTA
+// =====================================================================
+
+document.getElementById("form-crear-paciente").addEventListener("submit", async (ev) => {
+  ev.preventDefault();
+  const err = document.getElementById("crear-paciente-error");
+  err.hidden = true;
+
+  const cuerpoJson = {
+    nombre: document.getElementById("cl-nombre").value.trim(),
+    identidad: document.getElementById("cl-identidad").value.trim(),
+    telefono: document.getElementById("cl-telefono").value.trim(),
+    correo: document.getElementById("cl-correo").value.trim(),
+    edad: Number(document.getElementById("cl-edad").value),
+    user: document.getElementById("cl-user").value.trim(),
+    password: document.getElementById("cl-password").value,
+    rol: "cliente",
+  };
+
+  try {
+    await pedir("/crear/nuevo_cliente", { method: "POST", body: JSON.stringify(cuerpoJson) });
+    document.getElementById("form-crear-paciente").reset();
+    toast(`Cuenta de paciente "${cuerpoJson.user}" creada. Inicia sesión.`);
+    mostrarPanelAcceso("login");
+  } catch (e) {
+    err.textContent = e.message;
+    err.hidden = false;
+  }
+});
+
+document.getElementById("form-crear-doctor").addEventListener("submit", async (ev) => {
+  ev.preventDefault();
+  const err = document.getElementById("crear-doctor-error");
+  err.hidden = true;
+
+  const cuerpoJson = {
+    nombre: document.getElementById("d-nombre").value.trim(),
+    no_colegiacion: document.getElementById("d-colegiacion").value.trim(),
+    especialidad: document.getElementById("d-especialidad").value.trim(),
+    telefono: document.getElementById("d-telefono").value.trim(),
+    correo: document.getElementById("d-correo").value.trim(),
+    user: document.getElementById("d-user").value.trim(),
+    password: document.getElementById("d-password").value,
+    rol: "doctor",
+  };
+
+  try {
+    await pedir("/crear/nuevo_doctor", { method: "POST", body: JSON.stringify(cuerpoJson) });
+    document.getElementById("form-crear-doctor").reset();
+    toast(`Cuenta de doctor "${cuerpoJson.user}" creada. Inicia sesión.`);
+    mostrarPanelAcceso("login");
+  } catch (e) {
+    err.textContent = e.message;
+    err.hidden = false;
+  }
+});
+
+// =====================================================================
 // Navegación / router simple
-// ---------------------------------------------------------------------
+// =====================================================================
 
 const VISTAS = {
   inicio:       { titulo: "Panorama",     indice: "Índice 00", render: renderInicio },
@@ -204,6 +291,12 @@ document.getElementById("barra-nav").addEventListener("click", (ev) => {
 });
 
 async function irAVista(nombre) {
+  // Si es paciente y trata de acceder a algo que no es citas, redirigir
+  if (esPaciente() && nombre !== "citas") {
+    irAVista("citas");
+    return;
+  }
+
   const vista = VISTAS[nombre];
   if (!vista) return;
 
@@ -225,9 +318,9 @@ async function irAVista(nombre) {
   }
 }
 
-// ---------------------------------------------------------------------
+// =====================================================================
 // Helpers de formato
-// ---------------------------------------------------------------------
+// =====================================================================
 
 function escapar(txt) {
   return String(txt ?? "").replace(/[&<>"']/g, (c) => ({
@@ -250,7 +343,7 @@ function pastillaEstado(estadoCita) {
 }
 
 function notaSoloDoctor(nombreModulo) {
-  return `<div class="candado-nota">Este módulo requiere una sesión con rol <code>doctor</code>. Tu sesión actual (<code>${escapar(estado.rol)}</code>) no tiene acceso a <code>${escapar(nombreModulo)}</code> según <code>utils/autenticacion.py</code>.</div>`;
+  return `<div class="candado-nota">Este módulo requiere una sesión con rol <code>doctor</code>. Tu sesión actual (<code>${escapar(estado.rol)}</code>) no tiene acceso.</div>`;
 }
 
 function estadoVacio(texto) {
@@ -263,9 +356,9 @@ function estadoVacio(texto) {
 
 async function renderInicio(cuerpo) {
   const [citas, consultas, doctores] = await Promise.all([
-    pedirListaSegura("/citas/?limite=90"),      // citas.py: le=90
-    pedirListaSegura("/consulta/?limite=80"),   // consultas.py: le=80
-    pedirListaSegura("/doctores/?limite=100"),  // doctores.py: le=100
+    pedirListaSegura("/citas/?limite=90"),
+    pedirListaSegura("/consulta/?limite=80"),
+    pedirListaSegura("/doctores/?limite=100"),
   ]);
   const pacientes = esDoctor() ? await pedirListaSegura("/pacientes/?limite=100") : [];
 
@@ -298,7 +391,6 @@ async function renderCitas(cuerpo) {
       <div class="ficha-encabezado">
         <div>
           <h3>Agendar cita</h3>
-          
         </div>
       </div>
       <form id="form-cita" class="form-rejilla">
@@ -424,7 +516,6 @@ async function renderConsultas(cuerpo) {
       <div class="ficha-encabezado">
         <div>
           <h3>Registrar consulta</h3>
-          
         </div>
       </div>
       <form id="form-consulta" class="form-rejilla">
@@ -884,94 +975,3 @@ function abrirEdicionMedicamento(id, medicamentos) {
     }
   });
 }
-
-// =====================================================================
-// CREAR CUENTA (desde el login)  ·  POST /crear/nuevo_cliente  ·  POST /crear/nuevo_doctor
-// =====================================================================
-
-const panelLogin = document.getElementById("form-login");
-const panelCliente = document.getElementById("form-cliente");
-const panelDoctor = document.getElementById("form-doctor");
-const panelCreada = document.getElementById("panel-cuenta-creada");
-
-function mostrarPanelAcceso(panel) {
-  [panelLogin, panelCliente, panelDoctor, panelCreada].forEach((p) => p.classList.add("oculto"));
-  panel.classList.remove("oculto");
-}
-
-document.getElementById("link-crear-paciente").addEventListener("click", (ev) => {
-  ev.preventDefault();
-  mostrarPanelAcceso(panelCliente);
-});
-
-document.getElementById("link-crear-doctor").addEventListener("click", (ev) => {
-  ev.preventDefault();
-  mostrarPanelAcceso(panelDoctor);
-});
-
-document.querySelectorAll("[data-volver-login]").forEach((link) => {
-  link.addEventListener("click", (ev) => {
-    ev.preventDefault();
-    mostrarPanelAcceso(panelLogin);
-  });
-});
-
-document.getElementById("btn-ir-a-login").addEventListener("click", () => {
-  mostrarPanelAcceso(panelLogin);
-});
-
-panelCliente.addEventListener("submit", async (ev) => {
-  ev.preventDefault();
-  const err = document.getElementById("cliente-error");
-  err.hidden = true;
-
-  const cuerpoJson = {
-    nombre: document.getElementById("cl-nombre").value.trim(),
-    identidad: document.getElementById("cl-identidad").value.trim(),
-    telefono: document.getElementById("cl-telefono").value.trim(),
-    correo: document.getElementById("cl-correo").value.trim(),
-    edad: Number(document.getElementById("cl-edad").value),
-    user: document.getElementById("cl-user").value.trim(),
-    password: document.getElementById("cl-password").value,
-    rol: "cliente",
-  };
-
-  try {
-    await pedir("/crear/nuevo_cliente", { method: "POST", body: JSON.stringify(cuerpoJson) });
-    panelCliente.reset();
-    document.getElementById("cuenta-creada-texto").textContent =
-      `Tu cuenta de paciente (${cuerpoJson.user}) fue creada correctamente. Inicia sesión para continuar.`;
-    mostrarPanelAcceso(panelCreada);
-  } catch (e) {
-    err.textContent = e.message;
-    err.hidden = false;
-  }
-});
-
-panelDoctor.addEventListener("submit", async (ev) => {
-  ev.preventDefault();
-  const err = document.getElementById("doctor-error");
-  err.hidden = true;
-
-  const cuerpoJson = {
-    nombre: document.getElementById("d-nombre").value.trim(),
-    no_colegiacion: document.getElementById("d-colegiacion").value.trim(),
-    especialidad: document.getElementById("d-especialidad").value.trim(),
-    telefono: document.getElementById("d-telefono").value.trim(),
-    correo: document.getElementById("d-correo").value.trim(),
-    user: document.getElementById("d-user").value.trim(),
-    password: document.getElementById("d-password").value,
-    rol: "doctor",
-  };
-
-  try {
-    await pedir("/crear/nuevo_doctor", { method: "POST", body: JSON.stringify(cuerpoJson) });
-    panelDoctor.reset();
-    document.getElementById("cuenta-creada-texto").textContent =
-      `Tu cuenta de doctor (${cuerpoJson.user}) fue creada correctamente. Inicia sesión para continuar.`;
-    mostrarPanelAcceso(panelCreada);
-  } catch (e) {
-    err.textContent = e.message;
-    err.hidden = false;
-  }
-});
