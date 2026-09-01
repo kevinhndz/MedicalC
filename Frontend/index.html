@@ -8,6 +8,8 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="estilos.css" />
+<!-- Script de Google Sign-In (necesario para que funcione el boton de Google) -->
+<script src="https://accounts.google.com/gsi/client" async defer></script>
 </head>
 <body>
 
@@ -33,6 +35,13 @@
         <button type="submit" class="btn btn-primario btn-full">
           <span class="btn-texto">Ingresar</span>
         </button>
+
+        <!-- Botón de Google Sign-In: muestra el botón azul de Google -->
+        <!-- data-client_id: el ID único de Google (como un DNI) -->
+        <!-- data-callback: Nombre de la funcion que se ejecuta cuando el usuario se loguea -->
+        <div id="g_id_onload" data-client_id="280594607095-8c0aus4sujv45eha2d216vrfmnbde1sm.apps.googleusercontent.com" data-callback="handleCredentialResponse"></div>
+        <!-- data-type="standard": muestra el boton azul clasico de Google -->
+        <div class="g_id_signin" data-type="standard"></div>
 
         <p id="login-error" class="aviso aviso-error" hidden></p>
 
@@ -164,15 +173,14 @@
     <main class="contenido">
       <header class="contenido-encabezado">
         <h2 id="vista-titulo">Panorama</h2>
+        <div id="toast" class="toast" hidden></div>
       </header>
 
       <div id="vista-cuerpo" class="vista-cuerpo">
-        <!-- Contenido dinámico inyectado por app.js -->
+
       </div>
     </main>
   </div>
-
-  <div id="toast" class="toast" hidden></div>
 
   <script src="app.js"></script>
 </body>
