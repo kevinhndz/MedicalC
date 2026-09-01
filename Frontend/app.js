@@ -9,6 +9,47 @@ const estado = {
 const esDoctor = () => estado.rol === "doctor";
 const esPaciente = () => estado.rol === "cliente";
 
+// =====================================================================
+// Google OAuth - Maneja el login con Google
+// =====================================================================
+
+// Esta funcion se ejecuta automaticamente cuando Google termina de verificar al usuario
+// response.credential contiene un "papel" de Google que dice "este usuario es valido"
+function handleCredentialResponse(response) {
+  // Enviamos ese "papel" (token) a nuestro servidor para verificarlo
+  loginConGoogle(response.credential);
+}
+
+// Función que envaa el token de Google a nuestro servidor
+async function loginConGoogle(idToken) {
+  try {
+    // Mandamos el token a nuestro servidor Python
+    const datos = await pedir("/login/google", {
+      method: "POST",
+      body: JSON.stringify({ id_token: idToken }),
+    });
+
+    // Si todo va bien, guardamos los datos del usuario
+    estado.token = datos.token;
+    estado.user = datos.user;
+    estado.rol = datos.rol;
+
+    // Guardamos tambin en localStorage (para que no se pierda al recargar)
+    localStorage.setItem("registro_token", datos.token);
+    localStorage.setItem("registro_user", datos.user);
+    localStorage.setItem("registro_rol", datos.rol);
+
+    // Mostramos un mensaje
+    toast("¡Bienvenido, " + datos.user + "!");
+    
+    // Llevamos al usuario a la app
+    entrarApp();
+  } catch (err) {
+    // Si algo sale mal, mostramos el error
+    toast(err.message || "Error al iniciar sesion con Google", "error");
+  }
+}
+
 
 async function pedir(ruta, opciones = {}) {
   const headers = { "Content-Type": "application/json", ...(opciones.headers || {}) };
