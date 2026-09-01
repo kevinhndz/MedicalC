@@ -1,5 +1,6 @@
-from fastapi import FastAPI, HTTPException, status, APIRouter, Depends
+from fastapi import HTTPException, status, APIRouter, Depends
 from sqlalchemy.orm import Session
+
 
 from base_datos.almacen import abrir_puerta_a_bd
 from base_datos.seguridad import Revisar_JSON_Crear_Cliente, Revisar_JSON_Crear_Doctor
@@ -14,7 +15,15 @@ router = APIRouter(
 
 @router.post("/nuevo_cliente", status_code=status.HTTP_201_CREATED)
 def crear_nuevo_cliente(json: Revisar_JSON_Crear_Cliente, base_datos: Session = Depends(abrir_puerta_a_bd)):
+
     check = base_datos.query(Clientes).filter(Clientes.identidad == json.identidad).first() 
+    
+    check_user = base_datos.query(Usuarios).filter(Usuarios.user == json.user).first()
+    if check_user is not None:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="El usuario ya existe"
+        )
     
     if check is None:
         nuevo_usuario = Usuarios(
@@ -48,7 +57,16 @@ def crear_nuevo_cliente(json: Revisar_JSON_Crear_Cliente, base_datos: Session = 
 
 @router.post("/nuevo_doctor", status_code=status.HTTP_201_CREATED)   
 def crear_nuevo_doctor(json: Revisar_JSON_Crear_Doctor, base_datos: Session = Depends(abrir_puerta_a_bd)):
+   
     check = base_datos.query(Doctores).filter(Doctores.no_colegiacion == json.no_colegiacion).first() 
+    
+    
+    check_user = base_datos.query(Usuarios).filter(Usuarios.user == json.user).first()
+    if check_user is not None:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="El usuario ya existe"
+        )
     
     if check is None:
         nuevo_usuario = Usuarios(

@@ -19,7 +19,7 @@ def crear_boleto(user: str, user_id: int, rol: str):
         "user": user,
         "user_id": user_id,
         "rol": rol,
-        "exp": expira_en
+        "exp": expira_en  
     }
     
     boleto = jwt.encode(
@@ -46,6 +46,3 @@ def verificar_boleto(token: str):
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Sesion invalida o expirada"
         )
-    
-    
-    
