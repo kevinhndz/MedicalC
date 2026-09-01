@@ -1,3 +1,5 @@
+import os
+from dotenv import load_dotenv
 from fastapi import APIRouter, HTTPException, status, Depends
 from sqlalchemy.orm import Session
 import google.auth.transport.requests
@@ -7,12 +9,15 @@ from base_datos.almacen import abrir_puerta_a_bd
 from base_datos.tablas import Clientes, Doctores
 from utils.jwt_handler import crear_token
 
+load_dotenv()
+
 # =====================================================================
 # Google OAuth Configuration
 # =====================================================================
 
-# Este es tu Client ID de Google (el que copiaste de Google Cloud Console)
-GOOGLE_CLIENT_ID = "280594607095-8c0aus4sujv45eha2d216vrfmnbde1sm.apps.googleusercontent.com"
+
+KEY = os.getenv("GOOGLE_CLIENT_ID")
+
 
 router = APIRouter(
     prefix="/login",
@@ -28,12 +33,7 @@ def login_google(
     body: dict,
     base_datos: Session = Depends(abrir_puerta_a_bd)
 ):
-    """
-    Recibe el token de Google del frontend, lo verifica, y si es válido,
-    busca al usuario en la base de datos y lo loguea.
-    """
     
-    # Extraer el token que envió el frontend
     id_token_str = body.get("id_token")
     
     # Verificar que el token fue enviado
@@ -47,7 +47,7 @@ def login_google(
         # Verificar que el token es REAL y viene de Google
         # (no es un token falso que alguien inventó)
         request = google.auth.transport.requests.Request()
-        idinfo = id_token.verify_oauth2_token(id_token_str, request, GOOGLE_CLIENT_ID)
+        idinfo = id_token.verify_oauth2_token(id_token_str, request, KEY)
         
         # Extraer el correo y nombre del usuario desde el token
         email = idinfo.get("email")
