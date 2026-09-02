@@ -1,8 +1,8 @@
-services:
-  uph-clinica:
-    build: .
-    container_name: uph-clinica-app
-    restart: always
+services: # Declara el inicio de la lista de contenedores que vas a administrar.
+  uph-clinica: # Es el nombre interno del servicio en Docker Compose
+    build: . #Le dice a Docker: "Busca el Dockerfile que ests en esta misma carpeta (.) y construyi la imagen usando sus instrucciones
+    container_name: uph-clinica-app # Le asigna un nombre fijo al contenedor cuando se hace :docker ps
+    restart: always # Si el servidor se reinicia, si se va la luz o si la app cae, Docker la levantar de 1.
     ports:
       - "8000:8000"
     env_file:
