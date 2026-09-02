@@ -47,42 +47,38 @@ async function loginConGoogle(idToken) {
   }
 }
 
-async function pedir(ruta, opciones = {}) {
-  const headers = { "Content-Type": "application/json", ...(opciones.headers || {}) };
-  if (estado.token) headers["token"] = estado.token;
+async function loginConGoogle(idToken) {
+  try {
+    const datos = await pedir("/login/google", {
+      method: "POST",
+      body: JSON.stringify({ id_token: idToken }),
+    });
 
-  console.log(`📡 ${opciones.method || 'GET'} ${API_BASE + ruta}`);
+    estado.token = datos.token;
+    estado.user = datos.user;
+    estado.rol = datos.rol;
 
-  const respuesta = await fetch(API_BASE + ruta, { ...opciones, headers });
+    localStorage.setItem("registro_token", datos.token);
+    localStorage.setItem("registro_user", datos.user);
+    localStorage.setItem("registro_rol", datos.rol);
 
-  if (respuesta.status === 401) {
-    cerrarSesion("Tu sesión expiró. Vuelve a ingresar.");
-    throw new Error("401 - Sesión expirada");
-  }
-
-  let cuerpo = null;
-  const texto = await respuesta.text();
-  if (texto) {
-    try { 
-      cuerpo = JSON.parse(texto); 
-    } catch { 
-      cuerpo = texto; 
+    toast("Bienvenido, " + datos.user + "!", "exito");
+    entrarApp();
+    
+  } catch (err) {
+    let mensajeUsuario = err.message || "Error al iniciar sesion con Google";
+    
+    if (err.message.includes("404")) {
+      mensajeUsuario = "Usuario no encontrado. Crea una cuenta primero desde Crear usuario";
+    } else if (err.message.includes("401")) {
+      mensajeUsuario = "Token de Google invalido o expirado. Intenta de nuevo.";
+    } else if (err.message.includes("400")) {
+      mensajeUsuario = "Error en los datos enviados a Google. Intenta de nuevo.";
     }
-  }
-
-  if (!respuesta.ok) {
-    const detalle = (cuerpo && cuerpo.detail) ? cuerpo.detail : `Error ${respuesta.status}`;
-    const mensajeError = typeof detalle === "string" ? detalle : JSON.stringify(detalle);
     
-    console.error(`❌ Error ${respuesta.status}:`, mensajeError);
-    
-    throw new Error(mensajeError);
+    toast(mensajeUsuario, "error");
   }
-
-  console.log(`✅ Respuesta exitosa (${respuesta.status})`, cuerpo);
-  return cuerpo;
 }
-
 
 async function pedir(ruta, opciones = {}) {
   const headers = { "Content-Type": "application/json", ...(opciones.headers || {}) };
