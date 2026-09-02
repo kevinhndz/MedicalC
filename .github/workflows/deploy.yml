@@ -1,0 +1,26 @@
+name: Deploy Automatico a Produccion   # 1. Nombre que aparecera en la pestaña "Actions" de GitHub.
+
+on:
+  push:
+    branches: [ "main" ]                 # 2. ¿Cuando se dispara? Cada vez que haga "git push" a la rama main.
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest               # 3. GitHub presta una maquinita virtual con Linux gratis para ejecutar los pasos.
+
+    steps:
+    - name: Checkout del codigo
+      uses: actions/checkout@v3          # 4. Descarga temporalmente el codigo del repositorio en esa maquinita de GitHub.
+
+    - name: Ejecutar SSH y actualizar servidor
+      uses: appleboy/ssh-action@master   # 5. Herramienta oficial que se conecta por SSH a tu Droplet por ti.
+      with:
+        host: ${{ secrets.DROPLET_IP }}         # 6. Usa el secreto que guardamos en GitHub. (No se cambia)
+        username: root                          # 7. El usuario del servidor. (No se cambia, a menos que use otro usuario)
+        key: ${{ secrets.DROPLET_SSH_KEY }}     # 8. Usa la llave privada secreta. (No se cambia)
+        script: |                               # 9. COMANDOS QUE SE EJECUTARAN DENTRO DEl DROPLET:
+          cd /root/MedicalC                     # accede al repo
+          git pull origin main                  # Descarga los ultimos cambios del codigo.
+          docker compose down                   # Apaga el contenedor viejo limpiamente.
+          docker compose up -d --build          # Compila la nueva imagen y enciende el nuevo contenedor.
+          docker system prune -f                # Borra imagenes viejas de Docker que ya no se usan para liberar espacio.
