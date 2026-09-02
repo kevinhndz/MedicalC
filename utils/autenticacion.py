@@ -3,16 +3,8 @@ from utils.boletos import verificar_boleto
 
 
 def el_vigilante(token: str = Header(...)):
-    
-   revisar_token = verificar_boleto(token)
-   
-   if revisar_token is None:
-       raise HTTPException(
-           status_code = status.HTTP_401_UNAUTHORIZED,
-           detail = "Token no valido o expirado"
-       )
-   else:
-       return revisar_token
+    revisar_token = verificar_boleto(token)
+    return revisar_token
 
 
 def permiso_doctor(json: dict = Depends(el_vigilante)):
@@ -34,4 +26,3 @@ def permiso_paciente(json: dict = Depends(el_vigilante)):
         )
     else:
         return json
-    
