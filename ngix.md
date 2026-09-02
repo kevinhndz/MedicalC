@@ -8,7 +8,7 @@ Guía paso a paso para configurar Nginx como Reverse Proxy en un servidor VPS Ub
 
 ### Nginx Proxy Flow
 
-![Nginx Proxy Flow](../img/nginx-proxy-flow.png)
+![Nginx Proxy Flow](/img/nginx-proxy-flow.png)
 
 Este diagrama muestra cómo Nginx actúa como Reverse Proxy, distribuyendo las peticiones entre los diferentes contenedores.
 

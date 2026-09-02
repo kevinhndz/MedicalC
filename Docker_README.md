@@ -11,7 +11,7 @@ por medio de Digital Ocean que es el que use, AWS, Microsoft GCP.
 
 ### Docker Architecture
 
-![Docker Architecture](../img/docker-architecture.png)
+![Docker Architecture](/img/docker-architecture.png)
 
 Este diagrama muestra la estructura completa de Docker, desde las imágenes congeladas hasta los contenedores vivos en memoria.
 
