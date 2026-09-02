@@ -8,16 +8,6 @@ const estado = {
 
 const esDoctor = () => estado.rol === "doctor";
 const esPaciente = () => estado.rol === "cliente";
-
-// 📝 REEMPLAZA esta función en tu app.js
-// Línea 16-51 aproximadamente
-
-// =====================================================================
-// Google OAuth - Maneja el login con Google (VERSIÓN MEJORADA)
-// =====================================================================
-
-// Esta funcion se ejecuta automaticamente cuando Google termina de verificar al usuario
-// response.credential contiene un "papel" de Google que dice "este usuario es valido"
 function handleCredentialResponse(response) {
   // Enviamos ese "papel" (token) a nuestro servidor para verificarlo
   console.log("🔵 Google Sign-In: usuario seleccionado, procesando...");

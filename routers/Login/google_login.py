@@ -13,8 +13,6 @@ load_dotenv()
 
 KEY = os.getenv("GOOGLE_CLIENT_ID")
 
-if not KEY:
-    raise ValueError("GOOGLE_CLIENT_ID no está en .env")
 
 router = APIRouter(
     prefix="/login",
