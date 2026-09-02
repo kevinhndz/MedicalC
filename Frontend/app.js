@@ -14,50 +14,31 @@ function handleCredentialResponse(response) {
   loginConGoogle(response.credential);
 }
 
-// Función que envía el token de Google a nuestro servidor
 async function loginConGoogle(idToken) {
   try {
-    console.log("🔵 Enviando token a /login/google...");
-    console.log("Token (primeros 50 caracteres):", idToken.substring(0, 50) + "...");
-    
-    // Mandamos el token a nuestro servidor Python
     const datos = await pedir("/login/google", {
       method: "POST",
       body: JSON.stringify({ id_token: idToken }),
     });
 
-    console.log("✅ Login exitoso! Datos recibidos:", datos);
-    
-    // Si todo va bien, guardamos los datos del usuario
     estado.token = datos.token;
     estado.user = datos.user;
     estado.rol = datos.rol;
 
-    // Guardamos también en localStorage (para que no se pierda al recargar)
     localStorage.setItem("registro_token", datos.token);
     localStorage.setItem("registro_user", datos.user);
     localStorage.setItem("registro_rol", datos.rol);
 
-    // Mostramos un mensaje
-    console.log(`✅ Sesión iniciada como: ${datos.user} (${datos.rol})`);
-    toast("¡Bienvenido, " + datos.user + "!", "exito");
-    
-    // Llevamos al usuario a la app
+    toast("Bienvenido, " + datos.user + "!", "exito");
     entrarApp();
     
   } catch (err) {
-    // Si algo sale mal, mostramos el error
-    console.error("❌ Error al iniciar sesion con Google:");
-    console.error("Mensaje:", err.message);
-    console.error("Stack:", err.stack);
-    
-    // Mostrar error más específico según el tipo
     let mensajeUsuario = err.message || "Error al iniciar sesion con Google";
     
     if (err.message.includes("404")) {
-      mensajeUsuario = "Usuario no encontrado. Crea una cuenta primero desde 'Crear usuario'";
+      mensajeUsuario = "Usuario no encontrado. Crea una cuenta primero desde Crear usuario";
     } else if (err.message.includes("401")) {
-      mensajeUsuario = "Token de Google inválido o expirado. Intenta de nuevo.";
+      mensajeUsuario = "Token de Google invalido o expirado. Intenta de nuevo.";
     } else if (err.message.includes("400")) {
       mensajeUsuario = "Error en los datos enviados a Google. Intenta de nuevo.";
     }
@@ -65,7 +46,6 @@ async function loginConGoogle(idToken) {
     toast(mensajeUsuario, "error");
   }
 }
-
 
 async function pedir(ruta, opciones = {}) {
   const headers = { "Content-Type": "application/json", ...(opciones.headers || {}) };
