@@ -1,11 +1,20 @@
 # Guia de Despliegue con Docker y Docker Compose
 
-Aqui te explico como levantar cualquier aplicacion en un servidor usando Docker.
+Aqui explico como levantar cualquier aplicacion en un servidor usando Docker.
 
 Primero,se necesita tener un servidor ya creado (Droplet , Maquina Virtual), acceso por SSH listo.Se puede comprar un servidor,
 por medio de Digital Ocean que es el que use, AWS, Microsoft GCP.
 
 ---
+
+## 🐋 Arquitectura Docker
+
+### Docker Architecture
+
+![Docker Architecture](../img/docker-architecture.png)
+
+Este diagrama muestra la estructura completa de Docker, desde las imágenes congeladas hasta los contenedores vivos en memoria.
+
 
 ## Paso 1: En VS CODE local 
 
