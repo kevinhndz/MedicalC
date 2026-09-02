@@ -4,7 +4,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from routers.crearUsuarios import crear
 from routers.endpoints import pacientes, med, citas, consultas, doctores, recetas
-from routers.Login import login
+from routers.Login import login, google_login  
 from base_datos.almacen import motor, miclaseBase
 
 miclaseBase.metadata.create_all(bind=motor)
@@ -25,6 +25,7 @@ app.add_middleware(
 
 app.include_router(crear.router)
 app.include_router(login.router)
+app.include_router(google_login.router)  
 app.include_router(pacientes.router)
 app.include_router(med.router)
 app.include_router(citas.router)          

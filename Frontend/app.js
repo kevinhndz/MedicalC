@@ -9,45 +9,108 @@ const estado = {
 const esDoctor = () => estado.rol === "doctor";
 const esPaciente = () => estado.rol === "cliente";
 
+// 📝 REEMPLAZA esta función en tu app.js
+// Línea 16-51 aproximadamente
+
 // =====================================================================
-// Google OAuth - Maneja el login con Google
+// Google OAuth - Maneja el login con Google (VERSIÓN MEJORADA)
 // =====================================================================
 
 // Esta funcion se ejecuta automaticamente cuando Google termina de verificar al usuario
 // response.credential contiene un "papel" de Google que dice "este usuario es valido"
 function handleCredentialResponse(response) {
   // Enviamos ese "papel" (token) a nuestro servidor para verificarlo
+  console.log("🔵 Google Sign-In: usuario seleccionado, procesando...");
   loginConGoogle(response.credential);
 }
 
-// Función que envaa el token de Google a nuestro servidor
+// Función que envía el token de Google a nuestro servidor
 async function loginConGoogle(idToken) {
   try {
+    console.log("🔵 Enviando token a /login/google...");
+    console.log("Token (primeros 50 caracteres):", idToken.substring(0, 50) + "...");
+    
     // Mandamos el token a nuestro servidor Python
     const datos = await pedir("/login/google", {
       method: "POST",
       body: JSON.stringify({ id_token: idToken }),
     });
 
+    console.log("✅ Login exitoso! Datos recibidos:", datos);
+    
     // Si todo va bien, guardamos los datos del usuario
     estado.token = datos.token;
     estado.user = datos.user;
     estado.rol = datos.rol;
 
-    // Guardamos tambin en localStorage (para que no se pierda al recargar)
+    // Guardamos también en localStorage (para que no se pierda al recargar)
     localStorage.setItem("registro_token", datos.token);
     localStorage.setItem("registro_user", datos.user);
     localStorage.setItem("registro_rol", datos.rol);
 
     // Mostramos un mensaje
-    toast("¡Bienvenido, " + datos.user + "!");
+    console.log(`✅ Sesión iniciada como: ${datos.user} (${datos.rol})`);
+    toast("¡Bienvenido, " + datos.user + "!", "exito");
     
     // Llevamos al usuario a la app
     entrarApp();
+    
   } catch (err) {
     // Si algo sale mal, mostramos el error
-    toast(err.message || "Error al iniciar sesion con Google", "error");
+    console.error("❌ Error al iniciar sesion con Google:");
+    console.error("Mensaje:", err.message);
+    console.error("Stack:", err.stack);
+    
+    // Mostrar error más específico según el tipo
+    let mensajeUsuario = err.message || "Error al iniciar sesion con Google";
+    
+    if (err.message.includes("404")) {
+      mensajeUsuario = "Usuario no encontrado. Crea una cuenta primero desde 'Crear usuario'";
+    } else if (err.message.includes("401")) {
+      mensajeUsuario = "Token de Google inválido o expirado. Intenta de nuevo.";
+    } else if (err.message.includes("400")) {
+      mensajeUsuario = "Error en los datos enviados a Google. Intenta de nuevo.";
+    }
+    
+    toast(mensajeUsuario, "error");
   }
+}
+
+
+async function pedir(ruta, opciones = {}) {
+  const headers = { "Content-Type": "application/json", ...(opciones.headers || {}) };
+  if (estado.token) headers["token"] = estado.token;
+
+  console.log(`📡 ${opciones.method || 'GET'} ${API_BASE + ruta}`);
+
+  const respuesta = await fetch(API_BASE + ruta, { ...opciones, headers });
+
+  if (respuesta.status === 401) {
+    cerrarSesion("Tu sesión expiró. Vuelve a ingresar.");
+    throw new Error("401 - Sesión expirada");
+  }
+
+  let cuerpo = null;
+  const texto = await respuesta.text();
+  if (texto) {
+    try { 
+      cuerpo = JSON.parse(texto); 
+    } catch { 
+      cuerpo = texto; 
+    }
+  }
+
+  if (!respuesta.ok) {
+    const detalle = (cuerpo && cuerpo.detail) ? cuerpo.detail : `Error ${respuesta.status}`;
+    const mensajeError = typeof detalle === "string" ? detalle : JSON.stringify(detalle);
+    
+    console.error(`❌ Error ${respuesta.status}:`, mensajeError);
+    
+    throw new Error(mensajeError);
+  }
+
+  console.log(`✅ Respuesta exitosa (${respuesta.status})`, cuerpo);
+  return cuerpo;
 }
 
 
