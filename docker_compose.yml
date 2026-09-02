@@ -1,0 +1,11 @@
+services:
+  uph-clinica:
+    build: .
+    container_name: uph-clinica-app
+    restart: always
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    volumes:
+      - ./base.db:/app/base.db
