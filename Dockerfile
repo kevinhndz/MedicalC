@@ -1,4 +1,4 @@
-FROM python:3.11-slim
+FROM python:3.12-slim
 #esta imagen le dice a docker: busca un Sistema OS (linux) que ya tenga instalado python 3.11
 
 
