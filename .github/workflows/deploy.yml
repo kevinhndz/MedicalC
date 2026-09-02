@@ -19,7 +19,7 @@ jobs:
         username: root                          # 7. El usuario del servidor. (No se cambia, a menos que use otro usuario)
         key: ${{ secrets.DROPLET_SSH_KEY }}     # 8. Usa la llave privada secreta. (No se cambia)
         script: |                               # 9. COMANDOS QUE SE EJECUTARAN DENTRO DEl DROPLET:
-          cd /root/MedicalC                     # accede al repo
+          cd /app/uph-clinica                     # accede al repo
           git pull origin main                  # Descarga los ultimos cambios del codigo.
           docker compose down                   # Apaga el contenedor viejo limpiamente.
           docker compose up -d --build          # Compila la nueva imagen y enciende el nuevo contenedor.
