@@ -13,6 +13,8 @@ load_dotenv()
 
 KEY = os.getenv("GOOGLE_CLIENT_ID")
 
+if not KEY:
+    raise ValueError("GOOGLE_CLIENT_ID no esta en .env")
 
 router = APIRouter(
     prefix="/login",
@@ -24,7 +26,6 @@ def login_google(
     body: dict,
     base_datos: Session = Depends(abrir_puerta_a_bd)
 ):
-    """Login con Google OAuth"""
     
     id_token_str = body.get("id_token")
     
@@ -35,11 +36,10 @@ def login_google(
         )
     
     try:
-        # Verificar token de Google
         request = google.auth.transport.requests.Request()
         idinfo = id_token.verify_oauth2_token(id_token_str, request, KEY)
         
-        print(f"✅ Token de Google verificado para: {idinfo.get('email')}")
+        print(f"Token de Google verificado para: {idinfo.get('email')}")
         
         email = idinfo.get("email")
         
@@ -49,17 +49,15 @@ def login_google(
                 detail="No se pudo obtener el correo de Google"
             )
         
-        print(f"🔍 Buscando usuario con correo: {email}")
+        print(f"Buscando usuario con correo: {email}")
         
-        # Buscar en Clientes
         cliente = base_datos.query(Clientes).filter(Clientes.correo == email).first()
         
         if cliente:
-            # Obtener el usuario asociado
             usuario = base_datos.query(Usuarios).filter(Usuarios.id == cliente.id_usuario).first()
             
             if usuario:
-                print(f"✅ Cliente encontrado: {usuario.user}")
+                print(f"Cliente encontrado: {usuario.user}")
                 token = crear_boleto(usuario.user, usuario.id, usuario.rol)
                 return {
                     "token": token,
@@ -67,15 +65,13 @@ def login_google(
                     "rol": usuario.rol
                 }
         
-        # Buscar en Doctores
         doctor = base_datos.query(Doctores).filter(Doctores.correo == email).first()
         
         if doctor:
-            # Obtener el usuario asociado
             usuario = base_datos.query(Usuarios).filter(Usuarios.id == doctor.id_usuario).first()
             
             if usuario:
-                print(f"✅ Doctor encontrado: {usuario.user}")
+                print(f"Doctor encontrado: {usuario.user}")
                 token = crear_boleto(usuario.user, usuario.id, usuario.rol)
                 return {
                     "token": token,
@@ -83,15 +79,14 @@ def login_google(
                     "rol": usuario.rol
                 }
         
-        
-        print(f"❌ Usuario con correo {email} no encontrado")
+        print(f"Usuario con correo {email} no encontrado")
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Usuario con correo {email} no registrado. Crea una cuenta primero."
+            detail="Usuario no encontrado. Crea una cuenta primero desde Crear usuario"
         )
     
     except ValueError as e:
-        print(f"❌ Error de validacion: {str(e)}")
+        print(f"Error de validacion: {str(e)}")
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Token de Google invalido o expirado"
@@ -99,7 +94,7 @@ def login_google(
     except HTTPException:
         raise
     except Exception as e:
-        print(f"❌ Error inesperado: {str(e)}")
+        print(f"Error inesperado: {str(e)}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Error interno del servidor"
