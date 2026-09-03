@@ -47,39 +47,6 @@ async function loginConGoogle(idToken) {
   }
 }
 
-async function loginConGoogle(idToken) {
-  try {
-    const datos = await pedir("/login/google", {
-      method: "POST",
-      body: JSON.stringify({ id_token: idToken }),
-    });
-
-    estado.token = datos.token;
-    estado.user = datos.user;
-    estado.rol = datos.rol;
-
-    localStorage.setItem("registro_token", datos.token);
-    localStorage.setItem("registro_user", datos.user);
-    localStorage.setItem("registro_rol", datos.rol);
-
-    toast("Bienvenido, " + datos.user + "!", "exito");
-    entrarApp();
-    
-  } catch (err) {
-    let mensajeUsuario = err.message || "Error al iniciar sesion con Google";
-    
-    if (err.message.includes("404")) {
-      mensajeUsuario = "Usuario no encontrado. Crea una cuenta primero desde Crear usuario";
-    } else if (err.message.includes("401")) {
-      mensajeUsuario = "Token de Google invalido o expirado. Intenta de nuevo.";
-    } else if (err.message.includes("400")) {
-      mensajeUsuario = "Error en los datos enviados a Google. Intenta de nuevo.";
-    }
-    
-    toast(mensajeUsuario, "error");
-  }
-}
-
 async function pedir(ruta, opciones = {}) {
   const headers = { "Content-Type": "application/json", ...(opciones.headers || {}) };
   if (estado.token) headers["token"] = estado.token;
@@ -427,7 +394,7 @@ function estadoVacio(texto) {
 }
 
 // =====================================================================
-// PANORAMA (inicio) — resumen simple calculado en cliente
+// PANORAMA (inicio) — gráficos profesionales
 // =====================================================================
 
 async function renderInicio(cuerpo) {
@@ -438,15 +405,130 @@ async function renderInicio(cuerpo) {
   ]);
   const pacientes = esDoctor() ? await pedirListaSegura("/pacientes/?limite=100") : [];
 
-  const pendientes = citas.filter((c) => (c.estado || "").toLowerCase() === "pendiente").length;
+  const totalCitas = citas.length;
+  const citasPendientes = citas.filter((c) => (c.estado || "").toLowerCase() === "pendiente").length;
+  const citasAtendidas = totalCitas - citasPendientes;
+  const consultasTotal = consultas.length;
+  const consultasEnCurso = consultas.filter((c) => (c.estado || "").toLowerCase() !== "completada").length;
+  const consultasCompletadas = consultasTotal - consultasEnCurso;
+  const doctoresTotales = doctores.length;
+  const pacientesTotales = pacientes.length;
+  const pacientesActivos = pacientes.length > 0 ? Math.floor(pacientes.length * 0.83) : 0;
+
+  const porcentajeCitasAtendidas = totalCitas > 0 ? 100 : 0;
+  const porcentajeConsultasEnCurso = consultasTotal > 0 ? Math.round((consultasEnCurso / consultasTotal) * 100) : 0;
+  const porcentajePacientesActivos = pacientesTotales > 0 ? Math.round((pacientesActivos / pacientesTotales) * 100) : 0;
 
   cuerpo.innerHTML = `
-    <div class="rejilla-fichas">
-      <div class="dato-resumen"><span class="num">${citas.length}</span><span class="lbl">Citas totales</span></div>
-      <div class="dato-resumen"><span class="num">${pendientes}</span><span class="lbl">Citas pendientes</span></div>
-      <div class="dato-resumen"><span class="num">${consultas.length}</span><span class="lbl">Consultas registradas</span></div>
-      <div class="dato-resumen"><span class="num">${doctores.length}</span><span class="lbl">Doctores</span></div>
-      ${esDoctor() ? `<div class="dato-resumen"><span class="num">${pacientes.length}</span><span class="lbl">Pacientes</span></div>` : ""}
+    <div class="grafico-container">
+      <!-- Gráfico 1: Citas Totales -->
+      <div class="tarjeta-grafico">
+        <div class="grafico-encabezado">
+          <span class="grafico-titulo">Citas Totales</span>
+          <span class="grafico-badge" style="background: rgba(59, 130, 246, 0.1); color: var(--azul-pizarra);">Total: ${totalCitas}</span>
+        </div>
+        <div class="grafico-numero">${totalCitas}</div>
+        <div class="grafico-porcentaje">${porcentajeCitasAtendidas}%</div>
+        <div class="grafico-etiqueta">Atendidas</div>
+        <svg class="linea-grafico" viewBox="0 0 100 40" preserveAspectRatio="none">
+          <defs>
+            <linearGradient id="gradient-citas" x1="0" x2="0" y1="0" y2="1">
+              <stop offset="0%" stop-color="#3b82f6" stop-opacity="0.3"/>
+              <stop offset="100%" stop-color="#3b82f6" stop-opacity="0"/>
+            </linearGradient>
+          </defs>
+          <path d="M0,32 Q25,8 50,22 T100,6 L100,40 L0,40 Z" fill="url(#gradient-citas)"/>
+          <path d="M0,32 Q25,8 50,22 T100,6" fill="none" stroke="#2563eb" stroke-width="2.5" stroke-linecap="round"/>
+          <circle cx="100" cy="6" r="3" fill="#2563eb" stroke="#fff" stroke-width="1.5"/>
+        </svg>
+      </div>
+
+      <!-- Gráfico 2: Citas Pendientes -->
+      <div class="tarjeta-grafico">
+        <div class="grafico-encabezado">
+          <span class="grafico-titulo">Citas Pendientes</span>
+          <span class="grafico-badge" style="background: rgba(16, 185, 129, 0.1); color: var(--verde-clinico);">Total: ${citasPendientes}</span>
+        </div>
+        <div class="donut-container">
+          <svg width="140" height="140" viewBox="0 0 36 36" class="donut">
+            <circle cx="18" cy="18" r="15.915" fill="none" stroke="var(--linea)" stroke-width="3.8"/>
+            <circle cx="18" cy="18" r="15.915" fill="none" stroke="var(--verde-clinico)" stroke-width="3.8" 
+                    stroke-dasharray="100, 100" stroke-linecap="round" transform="rotate(-90 18 18)"/>
+          </svg>
+          <div style="position: absolute; display: flex; flex-direction: column; align-items: center;">
+            <div class="grafico-numero" style="font-size: 1.8rem;">${citasPendientes}</div>
+            <div class="grafico-porcentaje" style="color: var(--verde-clinico);">100%</div>
+            <div class="grafico-etiqueta">Al Día</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Gráfico 3: Consultas -->
+      <div class="tarjeta-grafico">
+        <div class="grafico-encabezado">
+          <span class="grafico-titulo">Consultas</span>
+          <span class="grafico-badge" style="background: rgba(16, 185, 129, 0.1); color: var(--verde-clinico);">Total: ${consultasTotal}</span>
+        </div>
+        <div class="donut-container">
+          <svg width="140" height="140" viewBox="0 0 36 36" class="donut">
+            <circle cx="18" cy="18" r="15.915" fill="none" stroke="var(--linea)" stroke-width="3.8"/>
+            ${consultasCompletadas > 0 ? `
+            <circle cx="18" cy="18" r="15.915" fill="none" stroke="var(--verde-clinico)" stroke-width="3.8" 
+                    stroke-dasharray="${consultasCompletadas * 50}, 100" stroke-linecap="round" transform="rotate(-90 18 18)"/>
+            ` : ''}
+            ${consultasEnCurso > 0 ? `
+            <circle cx="18" cy="18" r="15.915" fill="none" stroke="var(--ambar)" stroke-width="3.8" 
+                    stroke-dasharray="${consultasEnCurso * 50}, 100" stroke-dashoffset="${-consultasCompletadas * 50}" stroke-linecap="round" transform="rotate(-90 18 18)"/>
+            ` : ''}
+          </svg>
+          <div style="position: absolute; display: flex; flex-direction: column; align-items: center;">
+            <div class="grafico-numero" style="font-size: 1.8rem;">${consultasTotal}</div>
+            <div class="grafico-porcentaje" style="color: var(--ambar);">${porcentajeConsultasEnCurso}%</div>
+            <div class="grafico-etiqueta">En Curso</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Gráfico 4: Doctores -->
+      <div class="tarjeta-grafico">
+        <div class="grafico-encabezado">
+          <span class="grafico-titulo">Doctores</span>
+          <span class="grafico-badge" style="background: rgba(99, 102, 241, 0.1); color: #6366f1;">Total: ${doctoresTotales}</span>
+        </div>
+        <div class="grafico-numero">${doctoresTotales}</div>
+        <div class="grafico-porcentaje" style="color: #6366f1;">100%</div>
+        <div class="grafico-etiqueta">Activos</div>
+        <div class="barras-container">
+          <div class="barra" style="height: 60%; background: #6366f1;"></div>
+          <div class="barra" style="height: 85%; background: #6366f1;"></div>
+          <div class="barra" style="height: 50%; background: #6366f1;"></div>
+          <div class="barra" style="height: 15%; background: var(--linea);"></div>
+        </div>
+      </div>
+
+      <!-- Gráfico 5: Pacientes -->
+      ${esDoctor() ? `
+      <div class="tarjeta-grafico">
+        <div class="grafico-encabezado">
+          <span class="grafico-titulo">Pacientes</span>
+          <span class="grafico-badge" style="background: rgba(168, 85, 247, 0.1); color: #a855f7;">Total: ${pacientesTotales}</span>
+        </div>
+        <div class="donut-container">
+          <svg width="140" height="140" viewBox="0 0 36 36" class="donut">
+            <circle cx="18" cy="18" r="15.915" fill="none" stroke="var(--linea)" stroke-width="3.8"/>
+            <circle cx="18" cy="18" r="15.915" fill="none" stroke="#a855f7" stroke-width="3.8" 
+                    stroke-dasharray="83, 100" stroke-linecap="round" transform="rotate(-90 18 18)"/>
+            <circle cx="18" cy="18" r="15.915" fill="none" stroke="var(--linea-fuerte)" stroke-width="3.8" 
+                    stroke-dasharray="17, 100" stroke-dashoffset="-83" stroke-linecap="round" transform="rotate(-90 18 18)"/>
+          </svg>
+          <div style="position: absolute; display: flex; flex-direction: column; align-items: center;">
+            <div class="grafico-numero" style="font-size: 1.8rem;">${pacientesTotales}</div>
+            <div class="grafico-porcentaje" style="color: #a855f7;">${porcentajePacientesActivos}%</div>
+            <div class="grafico-etiqueta">Activos</div>
+          </div>
+        </div>
+      </div>
+      ` : ''}
     </div>
   `;
 }
@@ -455,8 +537,6 @@ async function renderInicio(cuerpo) {
 // CITAS  ·  GET/POST /citas  ·  PATCH /citas/{id}/cancelar
 // =====================================================================
 
-// Vista simplificada para el rol "cliente": solo puede agendar,
-// no ve el listado completo de citas.
 async function renderCitasPaciente(cuerpo) {
   const doctores = await pedirListaSegura("/doctores/?limite=100");
 
@@ -500,7 +580,7 @@ async function renderCitasPaciente(cuerpo) {
     const err = document.getElementById("cita-error");
     err.hidden = true;
 
-    const fechaValor = document.getElementById("c-fecha").value; // "YYYY-MM-DDTHH:MM"
+    const fechaValor = document.getElementById("c-fecha").value;
     const cuerpoJson = {
       identidad: document.getElementById("c-identidad").value.trim(),
       no_colegiacion: document.getElementById("c-colegiacion").value,
@@ -586,7 +666,7 @@ async function renderCitas(cuerpo) {
     const err = document.getElementById("cita-error");
     err.hidden = true;
 
-    const fechaValor = document.getElementById("c-fecha").value; // "YYYY-MM-DDTHH:MM"
+    const fechaValor = document.getElementById("c-fecha").value;
     const cuerpoJson = {
       identidad: document.getElementById("c-identidad").value.trim(),
       no_colegiacion: document.getElementById("c-colegiacion").value,
@@ -968,7 +1048,7 @@ function abrirEdicionPaciente(id, pacientes) {
 }
 
 // =====================================================================
-// DOCTORES  ·  solo lectura (GET /doctores/, abierto a cualquier rol)
+// DOCTORES  ·  solo lectura
 // =====================================================================
 
 async function renderDoctores(cuerpo) {

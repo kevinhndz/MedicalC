@@ -600,9 +600,110 @@ table.tabla {
   font-weight: 600;
 }
 
-/* --------------------------------------------------------------------
-   Responsive
-   -------------------------------------------------------------------- */
+/* ======================================================================
+   GRÁFICOS PROFESIONALES PARA PANORAMA
+   ====================================================================== */
+
+.grafico-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.tarjeta-grafico {
+  background: var(--papel-panel);
+  border: 1px solid var(--linea);
+  border-radius: var(--radio);
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.grafico-encabezado {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--linea);
+  padding-bottom: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.grafico-titulo {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--tinta-suave);
+  flex: 1;
+  text-align: left;
+}
+
+.grafico-badge {
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 0.35rem 0.6rem;
+  border-radius: 4px;
+  background: rgba(59, 130, 246, 0.1);
+  color: var(--azul-pizarra);
+}
+
+.grafico-numero {
+  font-size: 2.5rem;
+  font-weight: 900;
+  color: var(--tinta);
+  line-height: 1;
+}
+
+.grafico-porcentaje {
+  font-size: 0.85rem;
+  font-weight: 700;
+  margin-top: 0.5rem;
+  color: var(--azul-pizarra);
+}
+
+.grafico-etiqueta {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--tinta-suave);
+  margin-top: 0.25rem;
+}
+
+.donut-container {
+  width: 140px;
+  height: 140px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 1rem 0;
+  position: relative;
+}
+
+.linea-grafico {
+  width: 100%;
+  height: 60px;
+  margin: 1rem 0;
+}
+
+.barras-container {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 0.75rem;
+  height: 80px;
+  margin: 1rem 0;
+}
+
+.barra {
+  width: 20px;
+  background: var(--azul-pizarra);
+  border-radius: 4px 4px 0 0;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
 
 @media (max-width: 980px) {
   .pantalla-login { grid-template-columns: 1fr; }
@@ -614,6 +715,9 @@ table.tabla {
   .app { grid-template-columns: 1fr; }
   .barra-lateral { position: relative; height: auto; }
   .contenido { padding: 1.5rem 1.25rem 3rem; }
+  .grafico-container {
+    grid-template-columns: 1fr;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
