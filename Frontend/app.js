@@ -1206,3 +1206,93 @@ function abrirEdicionMedicamento(id, medicamentos) {
     }
   });
 }
+
+const btnAbrirChat = document.getElementById("btn-abrir-chat");
+const btnCerrarChat = document.getElementById("btn-cerrar-chat");
+const chatbotContenedor = document.getElementById("chatbot-contenedor");
+const formChat = document.getElementById("form-chat");
+const inputPregunta = document.getElementById("input-pregunta");
+const chatbotMensajes = document.getElementById("chatbot-mensajes");
+
+btnAbrirChat.addEventListener("click", () => {
+  chatbotContenedor.classList.remove("oculto");
+  btnAbrirChat.classList.add("oculto");
+
+  if (chatbotMensajes.children.length === 0) {
+    agregarMensajeAlChat(
+      "¡Hola! 👋 Bienvenido/a a la Clínica UPH. Soy tu asistente virtual.\n\n¿En qué te puedo ayudar hoy? Puedo brindar información sobre medicamentos, doctores, pacientes o citas.",
+      "bot"
+    );
+  }
+
+  inputPregunta.focus();
+});
+
+btnCerrarChat.addEventListener("click", () => {
+  chatbotContenedor.classList.add("oculto");
+  btnAbrirChat.classList.remove("oculto");
+});
+
+formChat.addEventListener("submit", async (ev) => {
+  ev.preventDefault();
+  
+  const pregunta = inputPregunta.value.trim();
+  if (!pregunta) return;
+  
+  agregarMensajeAlChat(pregunta, "usuario");
+  inputPregunta.value = "";
+  
+  mostrarCargando();
+  
+  try {
+    const respuesta = await pedir("/chat/", {
+      method: "POST",
+      body: JSON.stringify({ pregunta }),
+    });
+    
+    eliminarCargando();
+    agregarMensajeAlChat(respuesta.respuesta, "bot");
+    
+  } catch (e) {
+    eliminarCargando();
+    agregarMensajeAlChat(
+      `Error: ${e.message || "No pude procesar tu pregunta. Intenta de nuevo."}`,
+      "bot"
+    );
+  }
+});
+
+function agregarMensajeAlChat(texto, tipo) {
+  const div = document.createElement("div");
+  div.className = `mensaje-${tipo}`;
+  
+  const textoFormateado = texto.replace(/\n/g, "<br>");
+  div.innerHTML = textoFormateado;
+
+  chatbotMensajes.appendChild(div);
+  chatbotMensajes.scrollTop = chatbotMensajes.scrollHeight;
+}
+
+function mostrarCargando() {
+  const div = document.createElement("div");
+  div.className = "mensaje-bot mensaje-cargando";
+  div.id = "indicador-cargando";
+  div.innerHTML = `
+    <div class="punto-cargando"></div>
+    <div class="punto-cargando"></div>
+    <div class="punto-cargando"></div>
+  `;
+  chatbotMensajes.appendChild(div);
+  chatbotMensajes.scrollTop = chatbotMensajes.scrollHeight;
+}
+
+function eliminarCargando() {
+  const indicador = document.getElementById("indicador-cargando");
+  if (indicador) indicador.remove();
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  if (!estado.token) {
+    btnAbrirChat.style.display = "none";
+  }
+});

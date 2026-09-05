@@ -7,7 +7,7 @@ from google.oauth2 import id_token
 
 from base_datos.almacen import abrir_puerta_a_bd
 from base_datos.tablas import Clientes, Doctores, Usuarios
-from utils.boletos import crear_boleto
+from routers.utils.boletos import crear_boleto
 
 load_dotenv()
 

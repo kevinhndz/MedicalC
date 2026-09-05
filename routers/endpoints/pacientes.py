@@ -4,7 +4,7 @@ from base_datos.almacen import abrir_puerta_a_bd
 
 from base_datos.seguridad import Revisar_JSON_Actualizar_Paciente
 from base_datos.tablas import Clientes
-from utils.autenticacion import permiso_doctor
+from routers.utils.autenticacion import permiso_doctor
 
 router = APIRouter(
     prefix="/pacientes",

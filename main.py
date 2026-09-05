@@ -4,7 +4,8 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from routers.crearUsuarios import crear
 from routers.endpoints import pacientes, med, citas, consultas, doctores, recetas
-from routers.Login import login, google_login  
+from routers.Login import login, google_login
+from routers import chatbot
 from base_datos.almacen import motor, miclaseBase
 
 miclaseBase.metadata.create_all(bind=motor)
@@ -31,6 +32,7 @@ app.include_router(med.router)
 app.include_router(citas.router)          
 app.include_router(consultas.router)     
 app.include_router(doctores.router)      
-app.include_router(recetas.router)       
+app.include_router(recetas.router)
+app.include_router(chatbot.router)
 
 app.mount("/", StaticFiles(directory="Frontend", html=True), name="Frontend")
