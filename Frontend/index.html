@@ -182,6 +182,28 @@
     </main>
   </div>
 
+  <!-- ================= CHATBOT FLOTANTE ================= -->
+  <div id="chatbot-contenedor" class="chatbot-contenedor oculto">
+    <div class="chatbot-header">
+      <h3>Asistente IA 🤖</h3>
+      <button id="btn-cerrar-chat" class="btn-cerrar-chat" type="button">✕</button>
+    </div>
+    <div id="chatbot-mensajes" class="chatbot-mensajes"></div>
+    <form id="form-chat" class="chatbot-formulario">
+      <input 
+        id="input-pregunta" 
+        type="text" 
+        placeholder="Pregunta sobre la clinica..." 
+        autocomplete="off"
+      />
+      <button type="submit" class="btn-enviar-chat">Enviar</button>
+    </form>
+  </div>
+
+  <button id="btn-abrir-chat" class="btn-abrir-chat" type="button" title="Abrir chat IA">
+    🤖
+  </button>
+
   <script src="app.js"></script>
 </body>
 </html>

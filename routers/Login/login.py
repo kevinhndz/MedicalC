@@ -4,8 +4,8 @@ from sqlalchemy.orm import Session
 from base_datos.almacen import abrir_puerta_a_bd
 from base_datos.seguridad import Revisar_JSON_Usuario
 from base_datos.tablas import Usuarios
-from utils.boletos import crear_boleto
-from utils.hash import verificar_contrasena  
+from routers.utils.boletos import crear_boleto
+from routers.utils.hash import verificar_contrasena  
 
 router = APIRouter(
     tags=["Login"]

@@ -6,7 +6,7 @@ from base_datos.almacen import abrir_puerta_a_bd
 from base_datos.seguridad import Revisar_JSON_Crear_Cliente, Revisar_JSON_Crear_Doctor
 from base_datos.tablas import Clientes, Doctores, Usuarios
 
-from utils.hash import encriptar_contrasena
+from routers.utils.hash import encriptar_contrasena
 
 router = APIRouter(
     prefix="/crear",

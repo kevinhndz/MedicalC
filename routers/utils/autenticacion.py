@@ -1,5 +1,5 @@
 from fastapi import Header, HTTPException,status, Depends
-from utils.boletos import verificar_boleto
+from routers.utils.boletos import verificar_boleto
 
 
 def el_vigilante(token: str = Header(...)):
