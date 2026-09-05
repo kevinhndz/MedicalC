@@ -9,4 +9,5 @@ passlib[argon2]
 argon2-cffi
 google-auth
 requests
-google-generativeaigoogle-genai==2.22.0
+google-generativeai
+google-genai==2.22.0
