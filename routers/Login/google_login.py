@@ -21,23 +21,35 @@ router = APIRouter(
     tags=["Auth"]
 )
 
+# aqui viene algo como { id_token: 1yuEUF444hfdkdd90jdndkdid7833n}
 @router.post("/google")
 def login_google(
     body: dict,
     base_datos: Session = Depends(abrir_puerta_a_bd)
 ):
     
-    id_token_str = body.get("id_token")
+    id_token_str = body.get("id_token")  # extraigo todo el token largo
     
-    if not id_token_str:
+    if not id_token_str: # si vino vacio la peticion rechazo y no sigo.
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="id_token requerido"
         )
     
+    # si relamente vino algo: pues ejecuto un try/excpept
     try:
+        
+
         request = google.auth.transport.requests.Request()
         idinfo = id_token.verify_oauth2_token(id_token_str, request, KEY)
+        #Quien es quien?
+        
+        #1 -> id_token -> firmado con google con su llave privada
+        
+        #2 ->  request = usa la libreria estandar de google para poder bajar las llaves publicas
+        #vigentes del dia  y usarlas para revisar el token.
+        
+        #3 -> KEY = identificacion publica de tu aplicacion web ante los servidores de Google
         
         print(f"Token de Google verificado para: {idinfo.get('email')}")
         
