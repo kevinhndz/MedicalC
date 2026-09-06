@@ -6,7 +6,7 @@ from pydantic import BaseModel
 import requests
 from base_datos.almacen import abrir_puerta_a_bd
 from base_datos.tablas import Clientes, Doctores, Citas, Consultas, Medicamentos
-from routers.utils.autenticacion import el_vigilante
+from utils.autenticacion import el_vigilante
 
 load_dotenv()
 
