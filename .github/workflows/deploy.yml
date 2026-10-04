@@ -26,5 +26,17 @@ jobs:
             cp /app/uph-clinica/.env /app/uph-clinica-node/.env
             cp /app/uph-clinica/base.db /app/uph-clinica-node/base.db
             docker compose -f /app/uph-clinica-node/docker-compose.node.yml up -d --build
-            curl --fail --silent http://127.0.0.1:8002/health
+            healthy=false
+            for attempt in $(seq 1 30); do
+              if curl --fail --silent http://127.0.0.1:8002/health; then
+                healthy=true
+                echo
+                break
+              fi
+              sleep 2
+            done
+            if [ "$healthy" != "true" ]; then
+              docker compose -f /app/uph-clinica-node/docker-compose.node.yml logs --tail=100
+              exit 1
+            fi
             echo "Node.js desplegado en paralelo; FastAPI permanece en 8000."

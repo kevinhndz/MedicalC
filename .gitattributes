@@ -1,0 +1,3 @@
+# El frontend vanilla existente se conserva en JavaScript y no forma parte de la migración.
+# Se excluye de las estadísticas de lenguajes sin modificar su contenido ni funcionamiento.
+Frontend/*.js linguist-vendored
