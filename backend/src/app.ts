@@ -3,18 +3,28 @@ import cors from "@fastify/cors";
 import fastifyStatic from "@fastify/static";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { openDatabase, assertDatabase } from "./db.js";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 
 export async function buildApp(): Promise<FastifyInstance> {
   const app = Fastify({ logger: true });
+  const database = openDatabase();
+  app.addHook("onClose", async () => database.close());
 
   await app.register(cors, {
     origin: true,
     credentials: true,
   });
 
-  app.get("/health", async () => ({ status: "ok" }));
+  app.get("/health", async (_request, reply) => {
+    try {
+      assertDatabase(database);
+      return { status: "ok", database: "ok" };
+    } catch {
+      return reply.code(503).send({ status: "error", database: "unavailable" });
+    }
+  });
 
   await app.register(fastifyStatic, {
     root: path.resolve(here, "../../Frontend"),
