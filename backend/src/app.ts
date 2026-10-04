@@ -5,6 +5,8 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { openDatabase, assertDatabase } from "./db.js";
 import { registerLoginRoutes } from "./routes/login.js";
+import { registerDoctorRoutes } from "./routes/doctores.js";
+import { registerPatientRoutes } from "./routes/pacientes.js";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 
@@ -28,6 +30,8 @@ export async function buildApp(): Promise<FastifyInstance> {
   });
 
   await registerLoginRoutes(app, database);
+  await registerDoctorRoutes(app, database);
+  await registerPatientRoutes(app, database);
 
   await app.register(fastifyStatic, {
     root: path.resolve(here, "../../Frontend"),
