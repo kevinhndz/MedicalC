@@ -8,6 +8,7 @@ import { registerLoginRoutes } from "./routes/login.js";
 import { registerDoctorRoutes } from "./routes/doctores.js";
 import { registerPatientRoutes } from "./routes/pacientes.js";
 import { registerMedicationRoutes } from "./routes/medicamentos.js";
+import { registerAppointmentRoutes } from "./routes/citas.js";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 
@@ -34,6 +35,7 @@ export async function buildApp(): Promise<FastifyInstance> {
   await registerDoctorRoutes(app, database);
   await registerPatientRoutes(app, database);
   await registerMedicationRoutes(app, database);
+  await registerAppointmentRoutes(app, database);
 
   await app.register(fastifyStatic, {
     root: path.resolve(here, "../../Frontend"),

@@ -1,0 +1,11 @@
+import type { FastifyInstance } from "fastify";
+import { z } from "zod";
+import type { SqliteDatabase } from "../db.js";
+import { authenticated } from "../middleware.js";
+
+const schema = z.object({ identidad: z.string(), no_colegiacion: z.string(), fecha_hora: z.string(), motivo: z.string() });
+export async function registerAppointmentRoutes(app: FastifyInstance, database: SqliteDatabase): Promise<void> {
+  app.get("/citas/", async (request, reply) => { try { await authenticated(request); } catch { return reply.code(401).send({ detail: "Sesion invalida o expirada" }); } const q = request.query as { limite?: string; salto?: string }; const rows = database.prepare("SELECT * FROM Citas LIMIT ? OFFSET ?").all(Math.min(Math.max(Number(q.limite ?? 10),1),90), Math.max(Number(q.salto ?? 0),0)); return rows; });
+  app.post("/citas/agendar_cita", async (request, reply) => { try { await authenticated(request); } catch { return reply.code(401).send({ detail: "Sesion invalida o expirada" }); } const parsed=schema.safeParse(request.body); if(!parsed.success)return reply.code(422).send({detail:parsed.error.issues}); const c=database.prepare("SELECT id FROM Clientes WHERE identidad=?").get(parsed.data.identidad) as {id:number}|undefined; const d=database.prepare("SELECT id FROM Doctores WHERE no_colegiacion=?").get(parsed.data.no_colegiacion) as {id:number}|undefined; if(!c||!d)return reply.code(404).send({detail:"Cliente o doctor no encontrado"}); const r=database.prepare("INSERT INTO Citas (id_cliente,id_doctor,fecha_hora,motivo,estado) VALUES (?,?,?,?,?)").run(c.id,d.id,parsed.data.fecha_hora,parsed.data.motivo,"pendiente"); return reply.code(201).send(database.prepare("SELECT * FROM Citas WHERE id=?").get(r.lastInsertRowid)); });
+  app.patch("/citas/:cita_id/cancelar", async (request, reply) => { try { await authenticated(request); } catch { return reply.code(401).send({ detail: "Sesion invalida o expirada" }); } const r=database.prepare("UPDATE Citas SET estado='cancelada' WHERE id=?").run(Number((request.params as {cita_id:string}).cita_id)); if(!r.changes)return reply.code(404).send({detail:"Cita no encontrada"}); return database.prepare("SELECT * FROM Citas WHERE id=?").get(Number((request.params as {cita_id:string}).cita_id)); });
+}
