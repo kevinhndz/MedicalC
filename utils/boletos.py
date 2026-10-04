@@ -28,7 +28,7 @@ def crear_boleto(user: str, user_id: int, rol: str):
         algorithm="HS256"
     )
     
-    return boleto
+    return boleto   #73731111ddydgdidy7383
 
 
 # Funcion #2 - Verificar el Token

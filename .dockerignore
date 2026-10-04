@@ -1,0 +1,11 @@
+.git
+.github
+.env
+node_modules
+backend/node_modules
+backend/dist
+venv
+__pycache__
+*.pyc
+base.db
+agents.md

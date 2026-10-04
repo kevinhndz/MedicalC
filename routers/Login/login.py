@@ -11,6 +11,8 @@ router = APIRouter(
     tags=["Login"]
 )
 
+#aqui {user: kevstpg, passw: 39393}
+
 @router.post("/login")
 def login(
     json: Revisar_JSON_Usuario,
