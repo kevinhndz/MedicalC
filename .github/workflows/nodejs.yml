@@ -1,0 +1,28 @@
+name: Validar backend Node.js
+
+on:
+  push:
+    branches: ["nodejs"]
+  pull_request:
+    branches: ["main"]
+
+jobs:
+  validar:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Descargar código
+        uses: actions/checkout@v4
+      - name: Configurar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: backend/package-lock.json
+      - name: Instalar dependencias
+        working-directory: backend
+        run: npm ci
+      - name: Compilar TypeScript
+        working-directory: backend
+        run: npm run build
+      - name: Construir imagen paralela
+        run: docker build -f Dockerfile.node -t uph-clinica-node:ci .
