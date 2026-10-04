@@ -4,6 +4,7 @@ import fastifyStatic from "@fastify/static";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { openDatabase, assertDatabase } from "./db.js";
+import { registerLoginRoutes } from "./routes/login.js";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 
@@ -25,6 +26,8 @@ export async function buildApp(): Promise<FastifyInstance> {
       return reply.code(503).send({ status: "error", database: "unavailable" });
     }
   });
+
+  await registerLoginRoutes(app, database);
 
   await app.register(fastifyStatic, {
     root: path.resolve(here, "../../Frontend"),
