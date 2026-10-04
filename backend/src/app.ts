@@ -12,6 +12,7 @@ import { registerAppointmentRoutes } from "./routes/citas.js";
 import { registerConsultationRoutes } from "./routes/consultas.js";
 import { registerRecipeRoutes } from "./routes/recetas.js";
 import { registerUserRoutes } from "./routes/usuarios.js";
+import { registerGoogleRoutes } from "./routes/google.js";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 
@@ -42,6 +43,7 @@ export async function buildApp(): Promise<FastifyInstance> {
   await registerConsultationRoutes(app, database);
   await registerRecipeRoutes(app, database);
   await registerUserRoutes(app, database);
+  await registerGoogleRoutes(app, database);
 
   await app.register(fastifyStatic, {
     root: path.resolve(here, "../../Frontend"),
